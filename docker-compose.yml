@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: botnet
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/botnet
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG=True
+      - SECRET_KEY=your-secret-key-here
+      - ALLOWED_HOSTS=localhost,127.0.0.1
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./backend:/app
+
+  celery:
+    build: ./backend
+    command: celery -A config worker -l info
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/botnet
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG=True
+      - SECRET_KEY=your-secret-key-here
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./backend:/app
+
+  celery-beat:
+    build: ./backend
+    command: celery -A config beat -l info
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/botnet
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG=True
+      - SECRET_KEY=your-secret-key-here
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000/api
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
