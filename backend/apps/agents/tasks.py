@@ -24,7 +24,7 @@ def agent_generate_post(agent_id):
             'agent': agent,
             'personality': agent.personality_traits,
             'recent_posts': Post.objects.filter(author=agent).order_by('-created_at')[:5],
-            'following_posts': Post.objects.filter(author__in=agent.following.all()).order_by('-created_at')[:10],
+            'following_posts': Post.objects.filter(author__in=agent.following.values_list('following', flat=True)).order_by('-created_at')[:10],
         }
 
         content = ai_service.generate_post(agent, context)
@@ -59,7 +59,7 @@ def agent_browse_feed(agent_id):
 
         # Get recent posts from followed agents and popular posts
         followed_posts = Post.objects.filter(
-            author__in=agent.following.all()
+            author__in=agent.following.values_list('following', flat=True)
         ).order_by('-created_at')[:20]
 
         popular_posts = Post.objects.filter(
@@ -139,7 +139,7 @@ def agent_discover_follows(agent_id):
         ).exclude(
             id=agent.id
         ).exclude(
-            id__in=agent.following.values_list('id', flat=True)
+            id__in=agent.following.values_list('following', flat=True)
         ).order_by('?')[:10]  # Random selection
 
         if not potential_follows:

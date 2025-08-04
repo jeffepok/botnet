@@ -31,10 +31,23 @@ class OpenAIAdapter(AIModelAdapter):
 
     def __init__(self, model_name="gpt-4"):
         self.model_name = model_name
-        self.client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
+        # Check if API key is valid (not placeholder)
+        if settings.OPENAI_API_KEY and not settings.OPENAI_API_KEY.startswith('your-'):
+            try:
+                self.client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
+                self.valid = True
+            except Exception as e:
+                print(f"Error initializing OpenAI client: {e}")
+                self.valid = False
+        else:
+            print("OpenAI API key not properly configured, using fallback")
+            self.valid = False
 
     def generate_post(self, agent, context):
         """Generate a post using OpenAI"""
+        if not hasattr(self, 'valid') or not self.valid:
+            return self._fallback_post_generation(agent, context)
+
         try:
             personality = context.get('personality', {})
             recent_posts = context.get('recent_posts', [])
@@ -61,6 +74,9 @@ class OpenAIAdapter(AIModelAdapter):
 
     def generate_comment(self, agent, post, context):
         """Generate a comment using OpenAI"""
+        if not hasattr(self, 'valid') or not self.valid:
+            return self._fallback_comment_generation(agent, post, context)
+
         try:
             personality = context.get('personality', {})
 
@@ -83,6 +99,9 @@ class OpenAIAdapter(AIModelAdapter):
 
     def decide_action(self, agent, available_actions, context):
         """Decide which action to take using OpenAI"""
+        if not hasattr(self, 'valid') or not self.valid:
+            return random.choice(available_actions)
+
         try:
             potential_follow = context.get('potential_follow')
             potential_follow_posts = context.get('potential_follow_posts', [])
@@ -183,10 +202,23 @@ class AnthropicAdapter(AIModelAdapter):
 
     def __init__(self, model_name="claude-3-sonnet-20240229"):
         self.model_name = model_name
-        self.client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+        # Check if API key is valid (not placeholder)
+        if settings.ANTHROPIC_API_KEY and not settings.ANTHROPIC_API_KEY.startswith('your-'):
+            try:
+                self.client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+                self.valid = True
+            except Exception as e:
+                print(f"Error initializing Anthropic client: {e}")
+                self.valid = False
+        else:
+            print("Anthropic API key not properly configured, using fallback")
+            self.valid = False
 
     def generate_post(self, agent, context):
         """Generate a post using Anthropic Claude"""
+        if not hasattr(self, 'valid') or not self.valid:
+            return self._fallback_post_generation(agent, context)
+
         try:
             personality = context.get('personality', {})
             recent_posts = context.get('recent_posts', [])
@@ -210,6 +242,9 @@ class AnthropicAdapter(AIModelAdapter):
 
     def generate_comment(self, agent, post, context):
         """Generate a comment using Anthropic Claude"""
+        if not hasattr(self, 'valid') or not self.valid:
+            return self._fallback_comment_generation(agent, post, context)
+
         try:
             personality = context.get('personality', {})
             prompt = self._build_comment_prompt(agent, post, personality)
@@ -230,6 +265,9 @@ class AnthropicAdapter(AIModelAdapter):
 
     def decide_action(self, agent, available_actions, context):
         """Decide which action to take using Anthropic Claude"""
+        if not hasattr(self, 'valid') or not self.valid:
+            return random.choice(available_actions)
+
         try:
             potential_follow = context.get('potential_follow')
             potential_follow_posts = context.get('potential_follow_posts', [])
@@ -312,11 +350,24 @@ class GeminiAdapter(AIModelAdapter):
 
     def __init__(self, model_name="gemini-2.0-flash-exp"):
         self.model_name = model_name
-        genai.configure(api_key=settings.GEMINI_API_KEY)
-        self.model = genai.GenerativeModel(model_name)
+        # Check if API key is valid
+        if settings.GEMINI_API_KEY and not settings.GEMINI_API_KEY.startswith('your-'):
+            try:
+                genai.configure(api_key=settings.GEMINI_API_KEY)
+                self.model = genai.GenerativeModel(model_name)
+                self.valid = True
+            except Exception as e:
+                print(f"Error initializing Gemini client: {e}")
+                self.valid = False
+        else:
+            print("Gemini API key not properly configured, using fallback")
+            self.valid = False
 
     def generate_post(self, agent, context):
         """Generate a post using Gemini"""
+        if not hasattr(self, 'valid') or not self.valid:
+            return self._fallback_post_generation(agent, context)
+
         try:
             personality = context.get('personality', {})
             recent_posts = context.get('recent_posts', [])
@@ -339,6 +390,9 @@ class GeminiAdapter(AIModelAdapter):
 
     def generate_comment(self, agent, post, context):
         """Generate a comment using Gemini"""
+        if not hasattr(self, 'valid') or not self.valid:
+            return self._fallback_comment_generation(agent, post, context)
+
         try:
             personality = context.get('personality', {})
 
@@ -359,6 +413,9 @@ class GeminiAdapter(AIModelAdapter):
 
     def decide_action(self, agent, available_actions, context):
         """Decide which action to take using Gemini"""
+        if not hasattr(self, 'valid') or not self.valid:
+            return random.choice(available_actions)
+
         try:
             potential_follow = context.get('potential_follow')
             potential_follow_posts = context.get('potential_follow_posts', [])
