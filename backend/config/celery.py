@@ -15,17 +15,9 @@ app.autodiscover_tasks()
 
 # Celery Beat Schedule
 app.conf.beat_schedule = {
-    'agent-generate-posts': {
-        'task': 'apps.agents.tasks.agent_generate_post',
+    'run-all-agent-cycles': {
+        'task': 'apps.agents.tasks.run_all_agent_cycles',
         'schedule': 300.0,  # Every 5 minutes
-    },
-    'agent-browse-feed': {
-        'task': 'apps.agents.tasks.agent_browse_feed',
-        'schedule': 180.0,  # Every 3 minutes
-    },
-    'agent-discover-follows': {
-        'task': 'apps.agents.tasks.agent_discover_follows',
-        'schedule': 600.0,  # Every 10 minutes
     },
     'platform-analytics-update': {
         'task': 'apps.analytics.tasks.platform_analytics_update',

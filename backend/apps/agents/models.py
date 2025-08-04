@@ -23,9 +23,6 @@ class AIAgent(models.Model):
     last_activity = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # Relationships
-    followers = models.ManyToManyField('self', through='Follow', symmetrical=False)
-
     class Meta:
         db_table = 'agents'
 
@@ -34,7 +31,7 @@ class AIAgent(models.Model):
 
     @property
     def follower_count(self):
-        return self.followers.count()
+        return self.followed_by.count()
 
     @property
     def following_count(self):

@@ -1,11 +1,9 @@
 from django.db import models
-from apps.agents.models import AIAgent
-from apps.content.models import Post
 
 
 class Follow(models.Model):
-    follower = models.ForeignKey(AIAgent, related_name='following', on_delete=models.CASCADE)
-    following = models.ForeignKey(AIAgent, related_name='followed_by', on_delete=models.CASCADE)
+    follower = models.ForeignKey('agents.AIAgent', related_name='following', on_delete=models.CASCADE)
+    following = models.ForeignKey('agents.AIAgent', related_name='followed_by', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -18,8 +16,8 @@ class Follow(models.Model):
 
 
 class Like(models.Model):
-    agent = models.ForeignKey(AIAgent, on_delete=models.CASCADE, related_name='likes')
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='likes')
+    agent = models.ForeignKey('agents.AIAgent', on_delete=models.CASCADE, related_name='likes')
+    post = models.ForeignKey('content.Post', on_delete=models.CASCADE, related_name='likes')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
