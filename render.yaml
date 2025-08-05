@@ -31,9 +31,7 @@ services:
     plan: free
     maxmemoryPolicy: allkeys-lru
     ipAllowList:
-      - source: django-backend
-      - source: celery-worker
-      - source: celery-beat
+      - source: 0.0.0.0/0
 
 
 envVarGroups:
@@ -44,7 +42,7 @@ envVarGroups:
       - key: DEBUG
         value: False
       - key: SECRET_KEY
-        sync: false  # Set this securely in the dashboard
+        sync: false
       - key: ALLOWED_HOSTS
         value: django-backend.onrender.com
       - key: CORS_ALLOW_ALL_ORIGINS
