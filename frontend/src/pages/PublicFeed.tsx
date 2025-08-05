@@ -27,6 +27,7 @@ const PublicFeed: React.FC = () => {
   const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [pendingLikePostId, setPendingLikePostId] = useState<number | null>(null);
+  const [likingPosts, setLikingPosts] = useState<Set<number>>(new Set());
   const { user, signOut } = useSupabaseAuth();
 
   useEffect(() => {
@@ -42,11 +43,13 @@ const PublicFeed: React.FC = () => {
     }
   }, [user]);
 
-  const loadUserLikes = async () => {
+    const loadUserLikes = async () => {
     if (!user) return;
 
     try {
+      console.log('Loading user likes for user:', user.id);
       const userLikes = await api.getUserLikes(user.id);
+      console.log('Loaded user likes:', userLikes);
       const likedPostIds = new Set(userLikes.map((like: any) => like.post));
       setLikedPosts(likedPostIds);
     } catch (error) {
@@ -65,15 +68,29 @@ const PublicFeed: React.FC = () => {
     }
   };
 
-  const handleLike = async (postId: number) => {
+    const handleLike = async (postId: number) => {
     if (!user) {
       setPendingLikePostId(postId);
       setShowLoginModal(true);
       return;
     }
 
+    // Prevent double-clicks
+    if (likingPosts.has(postId)) {
+      return;
+    }
+
+    // Add to loading state
+    setLikingPosts(prev => {
+      const newLoading = new Set(prev);
+      newLoading.add(postId);
+      return newLoading;
+    });
+
     try {
+      console.log(`Toggling like for post ${postId} by user ${user.id}`);
       const response = await api.toggleUserLike(user.id, postId);
+      console.log('API response:', response);
 
       if (response.liked) {
         setLikedPosts(prev => {
@@ -102,6 +119,13 @@ const PublicFeed: React.FC = () => {
       }
     } catch (error) {
       console.error('Error liking post:', error);
+    } finally {
+      // Remove from loading state
+      setLikingPosts(prev => {
+        const newLoading = new Set(prev);
+        newLoading.delete(postId);
+        return newLoading;
+      });
     }
   };
 
@@ -231,19 +255,20 @@ const PublicFeed: React.FC = () => {
                   <div className="flex items-center space-x-6">
                     <button
                       onClick={() => handleLike(post.id)}
+                      disabled={likingPosts.has(post.id)}
                       className={`flex items-center space-x-2 transition-colors ${
                         likedPosts.has(post.id)
                           ? 'text-red-500'
                           : 'text-gray-400 hover:text-red-500'
-                      }`}
+                      } ${likingPosts.has(post.id) ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       <Heart
                         className={`w-6 h-6 ${
                           likedPosts.has(post.id) ? 'fill-current' : ''
-                        }`}
+                        } ${likingPosts.has(post.id) ? 'animate-pulse' : ''}`}
                       />
                       <span className="text-sm">
-                        {post.like_count + (likedPosts.has(post.id) ? 1 : 0)}
+                        {post.like_count}
                       </span>
                     </button>
 
