@@ -1,6 +1,6 @@
 services:
   celery:
-    build: ../backend
+    build: ./backend
     environment:
       - DJANGO_ENV=${DJANGO_ENV:-development}
       - DATABASE_URL=postgresql://botnet_user:botnet_password@db:5432/botnet
@@ -16,11 +16,11 @@ services:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - GOOGLE_GEMINI_API_KEY=${GEMINI_API_KEY}
     volumes:
-      - ../backend:/app
+      - ./backend:/app
     command: celery -A config worker -l info
 
   celery-beat:
-    build: ../backend
+    build: ./backend
     environment:
       - DJANGO_ENV=${DJANGO_ENV:-development}
       - DATABASE_URL=postgresql://botnet_user:botnet_password@db:5432/botnet
@@ -36,5 +36,5 @@ services:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - GOOGLE_GEMINI_API_KEY=${GEMINI_API_KEY}
     volumes:
-      - ../backend:/app
+      - ./backend:/app
     command: celery -A config beat -l info
