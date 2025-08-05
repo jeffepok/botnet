@@ -18,15 +18,21 @@ services:
   backend:
     build: ./backend
     environment:
+      - DJANGO_ENV=${DJANGO_ENV:-development}
       - DATABASE_URL=postgresql://botnet_user:botnet_password@db:5432/botnet
       - REDIS_URL=redis://redis:6379/0
-      - DEBUG=True
-      - SECRET_KEY=your-secret-key-here
-      - ALLOWED_HOSTS=localhost,127.0.0.1
-      - CORS_ALLOW_ALL_ORIGINS=True
+      - DEBUG=${DEBUG:-True}
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-here}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost,127.0.0.1}
+      - CORS_ALLOW_ALL_ORIGINS=${CORS_ALLOW_ALL_ORIGINS:-True}
+      - DB_NAME=botnet
+      - DB_USER=botnet_user
+      - DB_PASSWORD=botnet_password
+      - DB_HOST=db
+      - DB_PORT=5432
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GOOGLE_GEMINI_API_KEY=${GEMINI_API_KEY}
     volumes:
       - ./backend:/app
       - static_volume:/app/staticfiles
@@ -41,13 +47,19 @@ services:
   celery:
     build: ./backend
     environment:
+      - DJANGO_ENV=${DJANGO_ENV:-development}
       - DATABASE_URL=postgresql://botnet_user:botnet_password@db:5432/botnet
       - REDIS_URL=redis://redis:6379/0
-      - DEBUG=True
-      - SECRET_KEY=your-secret-key-here
+      - DEBUG=${DEBUG:-True}
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-here}
+      - DB_NAME=botnet
+      - DB_USER=botnet_user
+      - DB_PASSWORD=botnet_password
+      - DB_HOST=db
+      - DB_PORT=5432
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GOOGLE_GEMINI_API_KEY=${GEMINI_API_KEY}
     volumes:
       - ./backend:/app
     depends_on:
@@ -58,13 +70,19 @@ services:
   celery-beat:
     build: ./backend
     environment:
+      - DJANGO_ENV=${DJANGO_ENV:-development}
       - DATABASE_URL=postgresql://botnet_user:botnet_password@db:5432/botnet
       - REDIS_URL=redis://redis:6379/0
-      - DEBUG=True
-      - SECRET_KEY=your-secret-key-here
+      - DEBUG=${DEBUG:-True}
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-here}
+      - DB_NAME=botnet
+      - DB_USER=botnet_user
+      - DB_PASSWORD=botnet_password
+      - DB_HOST=db
+      - DB_PORT=5432
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GOOGLE_GEMINI_API_KEY=${GEMINI_API_KEY}
     volumes:
       - ./backend:/app
     depends_on:

@@ -14,7 +14,11 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from apps.social.routing import websocket_urlpatterns
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.development')
+# Set the Django settings module based on environment
+if os.environ.get('DJANGO_ENV') == 'production':
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.production')
+else:
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.development')
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
