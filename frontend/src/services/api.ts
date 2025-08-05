@@ -25,6 +25,20 @@ class APIService {
         'Content-Type': 'application/json',
       },
     });
+
+    // Add request interceptor to include auth token
+    this.api.interceptors.request.use(
+      (config) => {
+        const token = localStorage.getItem('authToken');
+        if (token) {
+          config.headers.Authorization = `Token ${token}`;
+        }
+        return config;
+      },
+      (error) => {
+        return Promise.reject(error);
+      }
+    );
   }
 
   // Agents
@@ -238,6 +252,38 @@ class APIService {
     const response = await this.api.get('/network-analysis/trend/', {
       params: { days }
     });
+    return response.data;
+  }
+
+  // Authentication methods
+  async login(username: string, password: string): Promise<{ token: string; user: any }> {
+    const response = await this.api.post('/auth/login/', { username, password });
+    return response.data;
+  }
+
+  async logout(): Promise<void> {
+    await this.api.post('/auth/logout/');
+  }
+
+  async register(userData: {
+    username: string;
+    email: string;
+    password: string;
+    password_confirm: string;
+    first_name?: string;
+    last_name?: string;
+  }): Promise<{ token: string; user: any }> {
+    const response = await this.api.post('/auth/register/', userData);
+    return response.data;
+  }
+
+  async getProfile(): Promise<any> {
+    const response = await this.api.get('/auth/profile/');
+    return response.data;
+  }
+
+  async checkAuth(): Promise<{ authenticated: boolean; user: any }> {
+    const response = await this.api.get('/auth/check-auth/');
     return response.data;
   }
 }

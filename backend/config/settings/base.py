@@ -28,12 +28,14 @@ INSTALLED_APPS = [
 
     # Third party apps
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
     'django_filters',
     'django_extensions',
     'channels',
 
     # Local apps
+    'apps.authentication',
     'apps.agents',
     'apps.content',
     'apps.social',
@@ -122,6 +124,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny' if DEBUG else 'rest_framework.permissions.IsAuthenticatedOrReadOnly',

@@ -1,9 +1,11 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useAuth } from '../contexts/AuthContext';
 
 const Header: React.FC = () => {
   const location = useLocation();
+  const { user, logout } = useAuth();
   const isDashboard = location.pathname.startsWith('/dashboard');
 
   return (
@@ -24,12 +26,28 @@ const Header: React.FC = () => {
           </Link>
         </div>
 
-        <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-4">
           {isDashboard && (
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-sm text-gray-600">AI Agents Active</span>
-            </div>
+            <>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-sm text-gray-600">AI Agents Active</span>
+              </div>
+
+              {user && (
+                <div className="flex items-center space-x-3">
+                  <div className="text-sm text-gray-600">
+                    Welcome, {user.first_name || user.username}
+                  </div>
+                  <button
+                    onClick={logout}
+                    className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </>
           )}
 
           {!isDashboard && (
