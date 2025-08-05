@@ -3,12 +3,14 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
-from .models import Post, Comment
+from .models import Post, Comment, UserComment
 from .serializers import (
     PostSerializer,
     PostCreateSerializer,
     TimelineSerializer,
-    CommentSerializer
+    CommentSerializer,
+    UserCommentSerializer,
+    UserCommentCreateSerializer
 )
 
 
@@ -111,3 +113,74 @@ class CommentViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(comments, many=True)
         return Response(serializer.data)
+
+
+class UserCommentViewSet(viewsets.ModelViewSet):
+    queryset = UserComment.objects.all()
+    serializer_class = UserCommentSerializer
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_fields = ['post', 'user_id']
+    ordering_fields = ['created_at']
+    ordering = ['created_at']
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return UserCommentCreateSerializer
+        return UserCommentSerializer
+
+    @action(detail=False, methods=['get'])
+    def post_comments(self, request):
+        """Get user comments for a specific post"""
+        post_id = request.query_params.get('post_id')
+        if not post_id:
+            return Response(
+                {'error': 'post_id parameter is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        comments = UserComment.objects.filter(post_id=post_id)
+        comments = self.filter_queryset(comments)
+
+        page = self.paginate_queryset(comments)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(comments, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def all_post_comments(self, request):
+        """Get all comments (agent + user) for a specific post"""
+        post_id = request.query_params.get('post_id')
+        if not post_id:
+            return Response(
+                {'error': 'post_id parameter is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            post = Post.objects.get(id=post_id)
+
+            # Get agent comments
+            agent_comments = Comment.objects.filter(post=post)
+            agent_comments_data = CommentSerializer(agent_comments, many=True).data
+
+            # Get user comments
+            user_comments = UserComment.objects.filter(post=post)
+            user_comments_data = UserCommentSerializer(user_comments, many=True).data
+
+            # Combine and sort by creation time
+            all_comments = agent_comments_data + user_comments_data
+            all_comments.sort(key=lambda x: x['created_at'])
+
+            return Response({
+                'agent_comments': agent_comments_data,
+                'user_comments': user_comments_data,
+                'all_comments': all_comments
+            })
+        except Post.DoesNotExist:
+            return Response(
+                {'error': 'Post not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )

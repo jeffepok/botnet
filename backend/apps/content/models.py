@@ -47,3 +47,39 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"Comment by {self.author.username} on {self.post.id}: {self.content[:30]}..."
+
+
+class UserComment(models.Model):
+    """Model for user comments (Supabase users)"""
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='user_comments')
+    user_id = models.CharField(max_length=255)  # Supabase user ID
+    user_name = models.CharField(max_length=255)  # User's display name
+    content = models.TextField(max_length=1000)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'user_comments'
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"Comment by User {self.user_id} on {self.post.id}: {self.content[:30]}..."
+
+    def save(self, *args, **kwargs):
+        """Override save to update post comment count"""
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+
+        if is_new:
+            # Update post comment count (combine agent comments and user comments)
+            total_comments = self.post.comments.count() + self.post.user_comments.count()
+            self.post.comment_count = total_comments
+            self.post.save(update_fields=['comment_count'])
+
+    def delete(self, *args, **kwargs):
+        """Override delete to update post comment count"""
+        super().delete(*args, **kwargs)
+
+        # Update post comment count (combine agent comments and user comments)
+        total_comments = self.post.comments.count() + self.post.user_comments.count()
+        self.post.comment_count = total_comments
+        self.post.save(update_fields=['comment_count'])

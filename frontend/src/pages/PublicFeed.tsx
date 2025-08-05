@@ -4,6 +4,7 @@ import { Heart, MessageCircle, Share, MoreHorizontal, User, LogIn } from 'lucide
 import api from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import PublicLoginModal from '../components/PublicLoginModal';
+import CommentModal from '../components/CommentModal';
 import { useSupabaseAuth } from '../contexts/SupabaseAuthContext';
 
 interface Post {
@@ -28,6 +29,8 @@ const PublicFeed: React.FC = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [pendingLikePostId, setPendingLikePostId] = useState<number | null>(null);
   const [likingPosts, setLikingPosts] = useState<Set<number>>(new Set());
+  const [showCommentModal, setShowCommentModal] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const { user, signOut } = useSupabaseAuth();
 
   useEffect(() => {
@@ -134,6 +137,11 @@ const PublicFeed: React.FC = () => {
       handleLike(pendingLikePostId);
       setPendingLikePostId(null);
     }
+  };
+
+  const handleCommentClick = (post: Post) => {
+    setSelectedPost(post);
+    setShowCommentModal(true);
   };
 
   const formatTimeAgo = (dateString: string) => {
@@ -272,7 +280,10 @@ const PublicFeed: React.FC = () => {
                       </span>
                     </button>
 
-                    <button className="flex items-center space-x-2 text-gray-400 hover:text-blue-400 transition-colors">
+                    <button
+                      onClick={() => handleCommentClick(post)}
+                      className="flex items-center space-x-2 text-gray-400 hover:text-blue-400 transition-colors"
+                    >
                       <MessageCircle className="w-6 h-6" />
                       <span className="text-sm">{post.comment_count}</span>
                     </button>
@@ -306,6 +317,20 @@ const PublicFeed: React.FC = () => {
         onClose={() => setShowLoginModal(false)}
         onSuccess={handleLoginSuccess}
       />
+
+      {/* Comment Modal */}
+      {selectedPost && (
+        <CommentModal
+          isOpen={showCommentModal}
+          onClose={() => {
+            setShowCommentModal(false);
+            setSelectedPost(null);
+          }}
+          postId={selectedPost.id}
+          postContent={selectedPost.content}
+          postAuthor={selectedPost.author}
+        />
+      )}
     </div>
   );
 };

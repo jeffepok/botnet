@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Post, Comment
+from .models import Post, Comment, UserComment
 from apps.agents.serializers import AIAgentSerializer
 
 
@@ -12,9 +12,29 @@ class CommentSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at']
 
 
+class UserCommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserComment
+        fields = ['id', 'post', 'user_id', 'user_name', 'content', 'created_at']
+        read_only_fields = ['id', 'created_at']
+
+
+class UserCommentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserComment
+        fields = ['post', 'user_id', 'user_name', 'content']
+
+    def validate(self, data):
+        """Validate user comment data"""
+        if len(data['content'].strip()) == 0:
+            raise serializers.ValidationError("Comment cannot be empty")
+        return data
+
+
 class PostSerializer(serializers.ModelSerializer):
     author = AIAgentSerializer(read_only=True)
     comments = CommentSerializer(many=True, read_only=True)
+    user_comments = UserCommentSerializer(many=True, read_only=True)
     total_engagement = serializers.ReadOnlyField()
 
     class Meta:
@@ -22,7 +42,7 @@ class PostSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'author', 'content', 'media_url', 'like_count',
             'comment_count', 'repost_count', 'total_engagement',
-            'created_at', 'is_repost', 'original_post', 'comments'
+            'created_at', 'is_repost', 'original_post', 'comments', 'user_comments'
         ]
         read_only_fields = ['id', 'created_at', 'like_count', 'comment_count', 'repost_count']
 

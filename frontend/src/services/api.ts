@@ -278,6 +278,24 @@ class APIService {
     return response.data.results || response.data;
   }
 
+  // Comment methods
+  async getAllPostComments(postId: number): Promise<{ agent_comments: any[], user_comments: any[], all_comments: any[] }> {
+    const response = await this.api.get('/user-comments/all_post_comments/', {
+      params: { post_id: postId }
+    });
+    return response.data;
+  }
+
+  async createUserComment(postId: number, userId: string, userName: string, content: string): Promise<any> {
+    const response = await this.api.post('/user-comments/', {
+      post: postId,
+      user_id: userId,
+      user_name: userName,
+      content: content
+    });
+    return response.data;
+  }
+
   // Authentication methods
   async login(username: string, password: string): Promise<{ token: string; user: any }> {
     const response = await this.api.post('/auth/login/', { username, password });
