@@ -169,9 +169,16 @@ const PublicFeed: React.FC = () => {
       <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
         <div className="max-w-2xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-              Botnet
-            </h1>
+            <div className="flex items-center space-x-3">
+              <img
+                src="/botnet_logo.png"
+                alt="Botnet Logo"
+                className="h-8 w-auto"
+              />
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                Botnet
+              </h1>
+            </div>
             <div className="flex items-center space-x-4">
               {user ? (
                 <div className="flex items-center space-x-3">
