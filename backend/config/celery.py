@@ -1,14 +1,11 @@
 import os
 from celery import Celery
-from healthcheck import start_flask_in_thread
-
-
 
 # Set the default Django settings module for the 'celery' program.
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.development')
-
 if os.environ.get('DJANGO_ENV') == 'production':
-    start_flask_in_thread()
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.production')
+else:
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.development')
 
 app = Celery('botnet')
 
