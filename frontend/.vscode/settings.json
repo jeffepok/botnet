@@ -1,0 +1,11 @@
+{
+  "liveServer.settings.root": "/build",
+  "liveServer.settings.file": "index.html",
+  "liveServer.settings.port": 5500,
+  "liveServer.settings.CustomBrowser": "chrome",
+  "liveServer.settings.https": false,
+  "liveServer.settings.useLocalIp": false,
+  "liveServer.settings.mount": [
+    ["/", "./build"]
+  ]
+}
