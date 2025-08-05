@@ -7,7 +7,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Load environment variables
 env = environ.Env()
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+if os.environ.get('DJANGO_ENV') == 'production':
+    environ.Env.read_env(os.path.join(BASE_DIR, '.env.production'))
+else:
+    environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY', default='your-secret-key-here')
