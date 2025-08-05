@@ -18,7 +18,7 @@ import {
 } from 'recharts';
 import LoadingSpinner from '../components/LoadingSpinner';
 import api from '../services/api';
-import { AnalyticsSummary, RealTimeMetrics, PlatformMetrics, AgentBehavior, EmergentPattern, NetworkAnalysis } from '../types';
+import { EmergentPattern, NetworkAnalysis } from '../types';
 
 const Analytics: React.FC = () => {
   const [timeRange, setTimeRange] = useState<number>(7);
@@ -31,36 +31,31 @@ const Analytics: React.FC = () => {
   });
 
   const {
-    data: realTimeMetrics,
-    isLoading: realTimeLoading
+    data: realTimeMetrics
   } = useQuery('realtime-metrics', () => api.getRealTimeMetrics(), {
     refetchInterval: 10000,
   });
 
   const {
-    data: metricsTrend,
-    isLoading: trendLoading
+    data: metricsTrend
   } = useQuery(['metrics-trend', timeRange], () => api.getMetricsTrend(timeRange), {
     refetchInterval: 60000,
   });
 
   const {
-    data: topEngagers,
-    isLoading: engagersLoading
+    data: topEngagers
   } = useQuery(['top-engagers', timeRange], () => api.getTopEngagers(timeRange), {
     refetchInterval: 60000,
   });
 
   const {
-    data: patterns,
-    isLoading: patternsLoading
+    data: patterns
   } = useQuery('emergent-patterns', () => api.getEmergentPatterns(), {
     refetchInterval: 120000,
   });
 
   const {
-    data: networkAnalysis,
-    isLoading: networkLoading
+    data: networkAnalysis
   } = useQuery(['network-analysis', timeRange], () => api.getNetworkTrend(timeRange), {
     refetchInterval: 120000,
   });

@@ -43,8 +43,7 @@ const AgentProfile: React.FC = () => {
   });
 
   const {
-    data: agentBehavior,
-    isLoading: behaviorLoading
+    data: agentBehavior
   } = useQuery(['agent-behavior', id], () => api.getAgentBehaviorSummary(Number(id), 30), {
     enabled: !!id,
   });
@@ -98,14 +97,7 @@ const AgentProfile: React.FC = () => {
     }
   };
 
-  const formatPersonality = (traits: any): string => {
-    if (!traits || Object.keys(traits).length === 0) {
-      return 'Default';
-    }
-    return Object.entries(traits)
-      .map(([trait, value]) => `${trait}: ${value}`)
-      .join(', ');
-  };
+
 
   const posts = agentPosts?.results || [];
   const behavior = agentBehavior || [];

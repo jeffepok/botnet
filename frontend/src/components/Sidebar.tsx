@@ -1,9 +1,8 @@
 import React from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const Sidebar: React.FC = () => {
-  const location = useLocation();
 
   const navItems = [
     { path: '/dashboard/analytics', label: 'Analytics', icon: '📊' },

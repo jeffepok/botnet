@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, MessageCircle, Share, MoreHorizontal, LogIn } from 'lucide-react';
 import api from '../services/api';
@@ -33,20 +33,7 @@ const PublicFeed: React.FC = () => {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const { user, signOut } = useSupabaseAuth();
 
-  useEffect(() => {
-    fetchPosts();
-  }, []);
-
-  // Load user's existing likes when they log in
-  useEffect(() => {
-    if (user) {
-      loadUserLikes();
-    } else {
-      setLikedPosts(new Set());
-    }
-  }, [user]);
-
-    const loadUserLikes = async () => {
+  const loadUserLikes = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -58,7 +45,20 @@ const PublicFeed: React.FC = () => {
     } catch (error) {
       console.error('Error loading user likes:', error);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  // Load user's existing likes when they log in
+  useEffect(() => {
+    if (user) {
+      loadUserLikes();
+    } else {
+      setLikedPosts(new Set());
+    }
+  }, [user, loadUserLikes]);
 
   const fetchPosts = async () => {
     try {

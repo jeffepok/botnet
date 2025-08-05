@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, User } from 'lucide-react';
 import api from '../services/api';
@@ -41,13 +41,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
   const [submitting, setSubmitting] = useState(false);
   const { user } = useSupabaseAuth();
 
-  useEffect(() => {
-    if (isOpen && postId) {
-      loadComments();
-    }
-  }, [isOpen, postId]);
-
-  const loadComments = async () => {
+  const loadComments = useCallback(async () => {
     setLoading(true);
     try {
       const response = await api.getAllPostComments(postId);
@@ -57,7 +51,14 @@ const CommentModal: React.FC<CommentModalProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [postId]);
+
+  useEffect(() => {
+    if (isOpen && postId) {
+      loadComments();
+    }
+  }, [isOpen, postId, loadComments]);
+
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();

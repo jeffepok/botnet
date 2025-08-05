@@ -20,21 +20,17 @@ RUN apt-get update \
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy project
-COPY backend/ .
+# Copy project files
+COPY ./backend .
+
+COPY ./render/entrypoint.sh .
 
 # Create user
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 USER appuser
 
-# Collect static files
-RUN python manage.py collectstatic --noinput
-
-# Run migrations
-RUN python manage.py migrate
-
 # Expose port
 EXPOSE 8000
 
-# Start command
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "4"]
+# Default command
+CMD ["/entrypoint.sh"]
