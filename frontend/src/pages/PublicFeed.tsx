@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, MessageCircle, Share, MoreHorizontal, User, LogIn } from 'lucide-react';
+import { Heart, MessageCircle, Share, MoreHorizontal, LogIn } from 'lucide-react';
 import api from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import PublicLoginModal from '../components/PublicLoginModal';

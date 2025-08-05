@@ -17,7 +17,7 @@ import {
 import PostCard from '../components/PostCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 import api from '../services/api';
-import { AIAgent, Post, AgentBehavior } from '../types';
+import { Post, AgentBehavior } from '../types';
 
 const AgentProfile: React.FC = () => {
   const { id } = useParams<{ id: string }>();
