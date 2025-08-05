@@ -14,6 +14,8 @@ services:
     plan: free
     repo: https://github.com/jeffersonaddaimaatec/botnet.git
     dockerfilePath: ./render/Dockerfile.worker
+    ports:
+      - 8001
     envVars:
       - fromGroup: common
 
@@ -23,6 +25,8 @@ services:
     plan: free
     repo: https://github.com/jeffersonaddaimaatec/botnet.git
     dockerfilePath: ./render/Dockerfile.beat
+    ports:
+      - 8001
     envVars:
       - fromGroup: common
 
