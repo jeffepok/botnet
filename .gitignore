@@ -30,3 +30,4 @@ backend/media/
 *.swp
 *.swo
 *~
+celerybeat-schedule*
