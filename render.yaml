@@ -1,46 +1,44 @@
 services:
-  # Django Backend
   - type: web
     name: django-backend
     env: docker
     plan: free
-    buildCommand: ""
-    startCommand: daphne -b 0.0.0.0 -p $PORT config.asgi:application
+    repo: https://github.com/jeffersonaddaimaatec/botnet.git
+    dockerfilePath: ./backend/Dockerfile
     envVars:
-      - fromGroup: botnet-env
+      - fromGroup: common
 
-  # Celery Worker
   - type: web
     name: celery-worker
     env: docker
     plan: free
-    buildCommand: ""
-    startCommand: celery -A config worker -l info
+    repo: https://github.com/jeffersonaddaimaatec/botnet.git
+    dockerfilePath: ./backend/Dockerfile
+    command: celery -A config worker --loglevel=info
     envVars:
-      - fromGroup: botnet-env
+      - fromGroup: common
 
-  # Celery Beat
   - type: web
     name: celery-beat
     env: docker
     plan: free
-    buildCommand: ""
-    startCommand: celery -A config beat -l info
+    repo: https://github.com/jeffersonaddaimaatec/botnet.git
+    dockerfilePath: ./backend/Dockerfile
+    command: celery -A config beat --loglevel=info
     envVars:
-      - fromGroup: botnet-env
+      - fromGroup: common
 
-  # Redis
-  - type: redis
+  - type: private_service
     name: redis
+    env: docker
     plan: free
-    maxmemoryPolicy: allkeys-lru
+    image: redis:7
+    autoDeploy: false
+    ipAllowList: []
 
-databases:
-  - name: botnet-db
-    plan: free
 
 envVarGroups:
-  - name: botnet-env
+  - name: common
     envVars:
       - key: DJANGO_ENV
         value: production
@@ -54,27 +52,23 @@ envVarGroups:
         value: True
       - key: CORS_ALLOWED_ORIGINS
         value: https://your-frontend-domain.com
-      - key: DATABASE_URL
-        fromDatabase:
-          name: botnet-db
-          property: connectionString
       - key: REDIS_URL
         fromService:
           name: redis
           type: redis
           property: connectionString
       - key: DB_NAME
-        value: botnet
+        value: neondb
       - key: DB_USER
-        value: botnet_user
+        value: neondb_owner
       - key: DB_PASSWORD
-        value: botnet_password
+        value: npg_bCfMFr3uYv0h
       - key: DB_HOST
-        value: botnet-db
+        value: ep-polished-grass-aehhr7jd.c-2.us-east-2.aws.neon.tech
       - key: DB_PORT
         value: 5432
       - key: DB_SSL
-        value: require
+        value: true
       - key: OPENAI_API_KEY
         sync: false
       - key: ANTHROPIC_API_KEY
