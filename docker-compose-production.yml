@@ -4,7 +4,7 @@ services:
     environment:
       - DJANGO_ENV=${DJANGO_ENV:-development}
       - DATABASE_URL=postgresql://botnet_user:botnet_password@db:5432/botnet
-      - REDIS_URL=redis://redis:6379/0
+      - REDIS_URL=${REDIS_URL}
       - DEBUG=${DEBUG:-True}
       - SECRET_KEY=${SECRET_KEY:-your-secret-key-here}
       - DB_NAME=${DB_NAME}
@@ -24,7 +24,7 @@ services:
     environment:
       - DJANGO_ENV=${DJANGO_ENV:-development}
       - DATABASE_URL=postgresql://botnet_user:botnet_password@db:5432/botnet
-      - REDIS_URL=redis://redis:6379/0
+      - REDIS_URL=${REDIS_URL}
       - DEBUG=${DEBUG:-True}
       - SECRET_KEY=${SECRET_KEY:-your-secret-key-here}
       - DB_NAME=${DB_NAME}
