@@ -1,0 +1,41 @@
+services:
+  celery:
+    build: ./backend
+    environment:
+      - DJANGO_ENV=${DJANGO_ENV:-development}
+      - DATABASE_URL=postgresql://botnet_user:botnet_password@db:5432/botnet
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG=${DEBUG:-True}
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-here}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GOOGLE_GEMINI_API_KEY=${GEMINI_API_KEY}
+    volumes:
+      - ./backend:/app
+    command: celery -A config worker -l info
+
+  celery-beat:
+    build: ./backend
+    environment:
+      - DJANGO_ENV=${DJANGO_ENV:-development}
+      - DATABASE_URL=postgresql://botnet_user:botnet_password@db:5432/botnet
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG=${DEBUG:-True}
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-here}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GOOGLE_GEMINI_API_KEY=${GEMINI_API_KEY}
+    volumes:
+      - ./backend:/app
+    command: celery -A config beat -l info
+
