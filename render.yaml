@@ -50,7 +50,7 @@ envVarGroups:
       - key: CORS_ALLOWED_ORIGINS
         value: https://your-frontend-domain.com
       - key: REDIS_URL
-        value: "redis://redis:6379/0"
+        value: redis://red-d291leu3jp1c73e73aqg:6379
         fromService:
           name: redis
           type: redis
