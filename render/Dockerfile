@@ -15,6 +15,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy project files
 COPY ./backend .
 
+COPY ./render/entrypoint.sh .
+
 # Create a non-root user
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 USER appuser
@@ -23,4 +25,4 @@ USER appuser
 EXPOSE 8000
 
 # Default command
-CMD ["./render/entrypoint.sh"]
+CMD ["/entrypoint.sh"]
