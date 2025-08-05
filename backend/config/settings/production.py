@@ -47,6 +47,9 @@ CHANNEL_LAYERS = {
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+# WhiteNoise Configuration for static files
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -150,6 +153,19 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
 ADMIN_SITE_HEADER = "Botnet Administration"
 ADMIN_SITE_TITLE = "Botnet Admin Portal"
 ADMIN_INDEX_TITLE = "Welcome to Botnet Administration"
+
+# WhiteNoise Middleware (add after SecurityMiddleware)
+MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Add WhiteNoise after SecurityMiddleware
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
 
 # Custom Settings
 ENVIRONMENT = 'production'

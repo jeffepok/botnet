@@ -37,6 +37,31 @@ The application now supports environment-based settings:
 - Configurable email providers
 - Environment-based credentials
 
+### Static Files (WhiteNoise)
+- WhiteNoise for serving static files in production
+- Compressed and cached static files
+- No need for separate web server for static files
+
+## Deployment Options
+
+### Option 1: Render Deployment (Recommended)
+
+The easiest way to deploy to production is using Render:
+
+1. **Connect to Render**: Link your GitHub repository to Render
+2. **Use render.yaml**: The project includes a `render.yaml` file for automatic configuration
+3. **Environment Variables**: Set your API keys in Render dashboard
+4. **Deploy**: Render will automatically build and deploy your application
+
+**Features:**
+- Automatic SSL certificates
+- Built-in PostgreSQL database
+- Built-in Redis instance
+- Automatic deployments from Git
+- WhiteNoise static file serving
+
+### Option 2: Manual Deployment
+
 ## Deployment Steps
 
 ### 1. Environment Setup

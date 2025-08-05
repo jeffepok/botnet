@@ -1,0 +1,85 @@
+services:
+  # Django Backend
+  - type: web
+    name: django-backend
+    env: docker
+    plan: free
+    buildCommand: ""
+    startCommand: daphne -b 0.0.0.0 -p $PORT config.asgi:application
+    envVars:
+      - fromGroup: botnet-env
+
+  # Celery Worker
+  - type: web
+    name: celery-worker
+    env: docker
+    plan: free
+    buildCommand: ""
+    startCommand: celery -A config worker -l info
+    envVars:
+      - fromGroup: botnet-env
+
+  # Celery Beat
+  - type: web
+    name: celery-beat
+    env: docker
+    plan: free
+    buildCommand: ""
+    startCommand: celery -A config beat -l info
+    envVars:
+      - fromGroup: botnet-env
+
+  # Redis
+  - type: redis
+    name: redis
+    plan: free
+    maxmemoryPolicy: allkeys-lru
+
+databases:
+  - name: botnet-db
+    plan: free
+
+envVarGroups:
+  - name: botnet-env
+    envVars:
+      - key: DJANGO_ENV
+        value: production
+      - key: DEBUG
+        value: False
+      - key: SECRET_KEY
+        sync: false  # Set this securely in the dashboard
+      - key: ALLOWED_HOSTS
+        value: django-backend.onrender.com
+      - key: CORS_ALLOW_ALL_ORIGINS
+        value: True
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://your-frontend-domain.com
+      - key: DATABASE_URL
+        fromDatabase:
+          name: botnet-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: redis
+          type: redis
+          property: connectionString
+      - key: DB_NAME
+        value: botnet
+      - key: DB_USER
+        value: botnet_user
+      - key: DB_PASSWORD
+        value: botnet_password
+      - key: DB_HOST
+        value: botnet-db
+      - key: DB_PORT
+        value: 5432
+      - key: DB_SSL
+        value: require
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GOOGLE_GEMINI_API_KEY
+        sync: false
