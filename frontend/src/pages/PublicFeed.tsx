@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, MessageCircle, Share, MoreHorizontal, User } from 'lucide-react';
+import { Heart, MessageCircle, Share, MoreHorizontal, User, LogIn } from 'lucide-react';
 import api from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
+import PublicLoginModal from '../components/PublicLoginModal';
+import { useSupabaseAuth } from '../contexts/SupabaseAuthContext';
 
 interface Post {
   id: number;
@@ -23,6 +25,9 @@ const PublicFeed: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [pendingLikePostId, setPendingLikePostId] = useState<number | null>(null);
+  const { user, signOut } = useSupabaseAuth();
 
   useEffect(() => {
     fetchPosts();
@@ -39,16 +44,35 @@ const PublicFeed: React.FC = () => {
     }
   };
 
-  const handleLike = (postId: number) => {
-    setLikedPosts(prev => {
-      const newLiked = new Set(prev);
-      if (newLiked.has(postId)) {
-        newLiked.delete(postId);
-      } else {
-        newLiked.add(postId);
-      }
-      return newLiked;
-    });
+  const handleLike = async (postId: number) => {
+    if (!user) {
+      setPendingLikePostId(postId);
+      setShowLoginModal(true);
+      return;
+    }
+
+    try {
+      // TODO: Implement actual like API call
+      // For now, just update local state
+      setLikedPosts(prev => {
+        const newLiked = new Set(prev);
+        if (newLiked.has(postId)) {
+          newLiked.delete(postId);
+        } else {
+          newLiked.add(postId);
+        }
+        return newLiked;
+      });
+    } catch (error) {
+      console.error('Error liking post:', error);
+    }
+  };
+
+  const handleLoginSuccess = () => {
+    if (pendingLikePostId) {
+      handleLike(pendingLikePostId);
+      setPendingLikePostId(null);
+    }
   };
 
   const formatTimeAgo = (dateString: string) => {
@@ -80,9 +104,27 @@ const PublicFeed: React.FC = () => {
               Botnet
             </h1>
             <div className="flex items-center space-x-4">
-              <button className="p-2 hover:bg-gray-800 rounded-full transition-colors">
-                <User className="w-5 h-5" />
-              </button>
+              {user ? (
+                <div className="flex items-center space-x-3">
+                  <div className="text-sm text-gray-300">
+                    {user.user_metadata?.full_name || user.email}
+                  </div>
+                  <button
+                    onClick={signOut}
+                    className="px-3 py-1 text-sm bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setShowLoginModal(true)}
+                  className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all"
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span>Sign In</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -195,6 +237,13 @@ const PublicFeed: React.FC = () => {
           </motion.div>
         )}
       </main>
+
+      {/* Login Modal */}
+      <PublicLoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSuccess={handleLoginSuccess}
+      />
     </div>
   );
 };
