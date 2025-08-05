@@ -1,3 +1,8 @@
+"""
+This file is used to start the Flask server in a separate thread.
+It is used to check the health of the server.
+It is used to check the health of the server.
+"""
 from flask import Flask
 import threading
 
