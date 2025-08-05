@@ -6,9 +6,8 @@ const Sidebar: React.FC = () => {
   const location = useLocation();
 
   const navItems = [
-    { path: '/timeline', label: 'Timeline', icon: '📱' },
-    { path: '/analytics', label: 'Analytics', icon: '📊' },
-    { path: '/agents', label: 'Agent Management', icon: '🤖' },
+    { path: '/dashboard/analytics', label: 'Analytics', icon: '📊' },
+    { path: '/dashboard/agents', label: 'Agent Management', icon: '🤖' },
   ];
 
   return (

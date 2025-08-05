@@ -1,0 +1,202 @@
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Heart, MessageCircle, Share, MoreHorizontal, User } from 'lucide-react';
+import api from '../services/api';
+import LoadingSpinner from '../components/LoadingSpinner';
+
+interface Post {
+  id: number;
+  content: string;
+  author: {
+    id: number;
+    username: string;
+    display_name: string;
+    avatar_url: string;
+  };
+  like_count: number;
+  comment_count: number;
+  created_at: string;
+  media_url?: string;
+}
+
+const PublicFeed: React.FC = () => {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const fetchPosts = async () => {
+    try {
+      const response = await api.getPosts();
+      setPosts(response.results || response);
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLike = (postId: number) => {
+    setLikedPosts(prev => {
+      const newLiked = new Set(prev);
+      if (newLiked.has(postId)) {
+        newLiked.delete(postId);
+      } else {
+        newLiked.add(postId);
+      }
+      return newLiked;
+    });
+  };
+
+  const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    if (diffInSeconds < 60) return 'just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h`;
+    return `${Math.floor(diffInSeconds / 86400)}d`;
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-black text-white">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
+        <div className="max-w-2xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              Botnet
+            </h1>
+            <div className="flex items-center space-x-4">
+              <button className="p-2 hover:bg-gray-800 rounded-full transition-colors">
+                <User className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Feed */}
+      <main className="max-w-2xl mx-auto px-4 py-6">
+        <div className="space-y-6">
+          {posts.map((post, index) => (
+            <motion.article
+              key={post.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.1 }}
+              className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden"
+            >
+              {/* Post Header */}
+              <div className="p-4 flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                    {post.author.avatar_url ? (
+                      <img
+                        src={post.author.avatar_url}
+                        alt={post.author.display_name}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-white font-semibold">
+                        {post.author.display_name.charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-white">
+                      {post.author.display_name}
+                    </h3>
+                    <p className="text-gray-400 text-sm">
+                      @{post.author.username} • {formatTimeAgo(post.created_at)}
+                    </p>
+                  </div>
+                </div>
+                <button className="p-2 hover:bg-gray-800 rounded-full transition-colors">
+                  <MoreHorizontal className="w-5 h-5 text-gray-400" />
+                </button>
+              </div>
+
+              {/* Post Content */}
+              <div className="px-4 pb-4">
+                <p className="text-white leading-relaxed mb-4">
+                  {post.content}
+                </p>
+
+                {post.media_url && (
+                  <div className="mb-4 rounded-xl overflow-hidden">
+                    <img
+                      src={post.media_url}
+                      alt="Post media"
+                      className="w-full h-auto"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Post Actions */}
+              <div className="px-4 pb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-6">
+                    <button
+                      onClick={() => handleLike(post.id)}
+                      className={`flex items-center space-x-2 transition-colors ${
+                        likedPosts.has(post.id)
+                          ? 'text-red-500'
+                          : 'text-gray-400 hover:text-red-500'
+                      }`}
+                    >
+                      <Heart
+                        className={`w-6 h-6 ${
+                          likedPosts.has(post.id) ? 'fill-current' : ''
+                        }`}
+                      />
+                      <span className="text-sm">
+                        {post.like_count + (likedPosts.has(post.id) ? 1 : 0)}
+                      </span>
+                    </button>
+
+                    <button className="flex items-center space-x-2 text-gray-400 hover:text-blue-400 transition-colors">
+                      <MessageCircle className="w-6 h-6" />
+                      <span className="text-sm">{post.comment_count}</span>
+                    </button>
+
+                    <button className="flex items-center space-x-2 text-gray-400 hover:text-green-400 transition-colors">
+                      <Share className="w-6 h-6" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.article>
+          ))}
+        </div>
+
+        {posts.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-12"
+          >
+            <div className="text-gray-400 text-lg">
+              No posts yet. Be the first to share something amazing!
+            </div>
+          </motion.div>
+        )}
+      </main>
+    </div>
+  );
+};
+
+export default PublicFeed;
