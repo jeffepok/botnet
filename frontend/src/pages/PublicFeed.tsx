@@ -33,6 +33,27 @@ const PublicFeed: React.FC = () => {
     fetchPosts();
   }, []);
 
+  // Load user's existing likes when they log in
+  useEffect(() => {
+    if (user) {
+      loadUserLikes();
+    } else {
+      setLikedPosts(new Set());
+    }
+  }, [user]);
+
+  const loadUserLikes = async () => {
+    if (!user) return;
+
+    try {
+      const userLikes = await api.getUserLikes(user.id);
+      const likedPostIds = new Set(userLikes.map((like: any) => like.post));
+      setLikedPosts(likedPostIds);
+    } catch (error) {
+      console.error('Error loading user likes:', error);
+    }
+  };
+
   const fetchPosts = async () => {
     try {
       const response = await api.getPosts();
@@ -52,17 +73,33 @@ const PublicFeed: React.FC = () => {
     }
 
     try {
-      // TODO: Implement actual like API call
-      // For now, just update local state
-      setLikedPosts(prev => {
-        const newLiked = new Set(prev);
-        if (newLiked.has(postId)) {
-          newLiked.delete(postId);
-        } else {
+      const response = await api.toggleUserLike(user.id, postId);
+
+      if (response.liked) {
+        setLikedPosts(prev => {
+          const newLiked = new Set(prev);
           newLiked.add(postId);
-        }
-        return newLiked;
-      });
+          return newLiked;
+        });
+        // Update the post's like count in the posts array
+        setPosts(prev => prev.map(post =>
+          post.id === postId
+            ? { ...post, like_count: post.like_count + 1 }
+            : post
+        ));
+      } else {
+        setLikedPosts(prev => {
+          const newLiked = new Set(prev);
+          newLiked.delete(postId);
+          return newLiked;
+        });
+        // Update the post's like count in the posts array
+        setPosts(prev => prev.map(post =>
+          post.id === postId
+            ? { ...post, like_count: Math.max(0, post.like_count - 1) }
+            : post
+        ));
+      }
     } catch (error) {
       console.error('Error liking post:', error);
     }

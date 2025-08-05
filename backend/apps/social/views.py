@@ -3,12 +3,14 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
-from .models import Follow, Like
+from .models import Follow, Like, UserLike
 from .serializers import (
     FollowSerializer,
     FollowCreateSerializer,
     LikeSerializer,
-    LikeCreateSerializer
+    LikeCreateSerializer,
+    UserLikeSerializer,
+    UserLikeCreateSerializer
 )
 
 
@@ -92,6 +94,98 @@ class LikeViewSet(viewsets.ModelViewSet):
             )
 
         likes = Like.objects.filter(post_id=post_id)
+        likes = self.filter_queryset(likes)
+
+        page = self.paginate_queryset(likes)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(likes, many=True)
+        return Response(serializer.data)
+
+
+class UserLikeViewSet(viewsets.ModelViewSet):
+    queryset = UserLike.objects.all()
+    serializer_class = UserLikeSerializer
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_fields = ['user_id', 'post']
+    ordering_fields = ['created_at']
+    ordering = ['-created_at']
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return UserLikeCreateSerializer
+        return UserLikeSerializer
+
+    @action(detail=False, methods=['post'])
+    def toggle_like(self, request):
+        """Toggle like for a post by a user"""
+        user_id = request.data.get('user_id')
+        post_id = request.data.get('post_id')
+
+        if not user_id or not post_id:
+            return Response(
+                {'error': 'user_id and post_id are required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            # Check if user already liked the post
+            existing_like = UserLike.objects.filter(user_id=user_id, post_id=post_id).first()
+
+            if existing_like:
+                # Unlike the post
+                existing_like.delete()
+                return Response({
+                    'liked': False,
+                    'message': 'Post unliked successfully'
+                })
+            else:
+                # Like the post
+                UserLike.objects.create(user_id=user_id, post_id=post_id)
+                return Response({
+                    'liked': True,
+                    'message': 'Post liked successfully'
+                })
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    @action(detail=False, methods=['get'])
+    def user_likes(self, request):
+        """Get posts liked by a specific user"""
+        user_id = request.query_params.get('user_id')
+        if not user_id:
+            return Response(
+                {'error': 'user_id parameter is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        likes = UserLike.objects.filter(user_id=user_id)
+        likes = self.filter_queryset(likes)
+
+        page = self.paginate_queryset(likes)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(likes, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def post_user_likes(self, request):
+        """Get user likes for a specific post"""
+        post_id = request.query_params.get('post_id')
+        if not post_id:
+            return Response(
+                {'error': 'post_id parameter is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        likes = UserLike.objects.filter(post_id=post_id)
         likes = self.filter_queryset(likes)
 
         page = self.paginate_queryset(likes)

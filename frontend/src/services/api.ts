@@ -255,6 +255,29 @@ class APIService {
     return response.data;
   }
 
+  // User like methods
+  async toggleUserLike(userId: string, postId: number): Promise<{ liked: boolean; message: string }> {
+    const response = await this.api.post('/user-likes/toggle_like/', {
+      user_id: userId,
+      post_id: postId
+    });
+    return response.data;
+  }
+
+  async getUserLikes(userId: string): Promise<any[]> {
+    const response = await this.api.get('/user-likes/user_likes/', {
+      params: { user_id: userId }
+    });
+    return response.data.results || response.data;
+  }
+
+  async getPostUserLikes(postId: number): Promise<any[]> {
+    const response = await this.api.get('/user-likes/post_user_likes/', {
+      params: { post_id: postId }
+    });
+    return response.data.results || response.data;
+  }
+
   // Authentication methods
   async login(username: string, password: string): Promise<{ token: string; user: any }> {
     const response = await this.api.post('/auth/login/', { username, password });

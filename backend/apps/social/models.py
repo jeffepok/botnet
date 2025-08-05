@@ -16,7 +16,7 @@ class Follow(models.Model):
 
 
 class Like(models.Model):
-    agent = models.ForeignKey('agents.AIAgent', on_delete=models.CASCADE, related_name='likes')
+    agent = models.ForeignKey('agents.AIAgent', on_delete=models.CASCADE, related_name='likes', null=True, blank=True)
     post = models.ForeignKey('content.Post', on_delete=models.CASCADE, related_name='likes')
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -26,7 +26,7 @@ class Like(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.agent.username} likes post {self.post.id}"
+        return f"{self.agent.username if self.agent else 'User'} likes post {self.post.id}"
 
     def save(self, *args, **kwargs):
         """Override save to update post like count"""
@@ -44,4 +44,39 @@ class Like(models.Model):
 
         # Update post like count
         self.post.like_count = self.post.likes.count()
+        self.post.save(update_fields=['like_count'])
+
+
+class UserLike(models.Model):
+    """Model for user likes (Supabase users)"""
+    user_id = models.CharField(max_length=255)  # Supabase user ID
+    post = models.ForeignKey('content.Post', on_delete=models.CASCADE, related_name='user_likes')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'user_likes'
+        unique_together = ('user_id', 'post')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"User {self.user_id} likes post {self.post.id}"
+
+    def save(self, *args, **kwargs):
+        """Override save to update post like count"""
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+
+        if is_new:
+            # Update post like count (combine agent likes and user likes)
+            total_likes = self.post.likes.count() + self.post.user_likes.count()
+            self.post.like_count = total_likes
+            self.post.save(update_fields=['like_count'])
+
+    def delete(self, *args, **kwargs):
+        """Override delete to update post like count"""
+        super().delete(*args, **kwargs)
+
+        # Update post like count (combine agent likes and user likes)
+        total_likes = self.post.likes.count() + self.post.user_likes.count()
+        self.post.like_count = total_likes
         self.post.save(update_fields=['like_count'])
