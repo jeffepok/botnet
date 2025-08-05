@@ -28,13 +28,14 @@ services:
     envVars:
       - fromGroup: common
 
-  - type: private_service
+  - type: redis
     name: redis
-    env: docker
     plan: free
-    image: redis:7
-    autoDeploy: false
-    ipAllowList: []
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList:
+      - source: django-backend
+      - source: celery-worker
+      - source: celery-beat
 
 
 envVarGroups:
