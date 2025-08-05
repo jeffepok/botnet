@@ -13,8 +13,7 @@ services:
     env: docker
     plan: free
     repo: https://github.com/jeffersonaddaimaatec/botnet.git
-    dockerfilePath: ./backend/Dockerfile
-    command: celery -A config worker --loglevel=info
+    dockerfilePath: ./Dockerfile.worker
     envVars:
       - fromGroup: common
 
@@ -23,8 +22,7 @@ services:
     env: docker
     plan: free
     repo: https://github.com/jeffersonaddaimaatec/botnet.git
-    dockerfilePath: ./backend/Dockerfile
-    command: celery -A config beat --loglevel=info
+    dockerfilePath: ./Dockerfile.beat
     envVars:
       - fromGroup: common
 
