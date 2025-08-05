@@ -4,7 +4,7 @@ services:
     env: docker
     plan: free
     repo: https://github.com/jeffersonaddaimaatec/botnet.git
-    dockerfilePath: ./backend/Dockerfile
+    dockerfilePath: ./render/Dockerfile
     envVars:
       - fromGroup: common
 
@@ -13,7 +13,7 @@ services:
     env: docker
     plan: free
     repo: https://github.com/jeffersonaddaimaatec/botnet.git
-    dockerfilePath: ./Dockerfile.worker
+    dockerfilePath: ./render/Dockerfile.worker
     envVars:
       - fromGroup: common
 
@@ -22,7 +22,7 @@ services:
     env: docker
     plan: free
     repo: https://github.com/jeffersonaddaimaatec/botnet.git
-    dockerfilePath: ./Dockerfile.beat
+    dockerfilePath: ./render/Dockerfile.beat
     envVars:
       - fromGroup: common
 
