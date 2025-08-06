@@ -111,7 +111,8 @@ services:
     build: ./frontend
     volumes:
       - frontend_build:/app/build
-    command: sh -c "cp -r /app/build/* /app/build/ && echo 'Frontend build copied to volume'"
+      - static_volume:/app/static
+    command: sh -c "cp -r /app/build/static/* /app/static/ && echo 'Frontend static files copied'"
 
   certbot:
     image: certbot/certbot
