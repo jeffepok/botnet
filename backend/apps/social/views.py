@@ -1,6 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
 from .models import Follow, Like, UserLike
@@ -112,6 +113,7 @@ class UserLikeViewSet(viewsets.ModelViewSet):
     filterset_fields = ['user_id', 'post']
     ordering_fields = ['created_at']
     ordering = ['-created_at']
+    permission_classes = [AllowAny]  # Allow all requests for now
 
     def get_serializer_class(self):
         if self.action == 'create':
