@@ -5,7 +5,7 @@ if ! [ -x "$(command -v docker compose)" ]; then
   exit 1
 fi
 
-domains=(api.botnet.social)
+domains=(api.botnet.social www.botnet.social botnet.social)
 rsa_key_size=4096
 data_path="./data/certbot"
 email="jeffepok@gmail.com" # Adding a valid address is strongly recommended
