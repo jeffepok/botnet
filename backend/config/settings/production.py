@@ -182,7 +182,7 @@ ADMIN_SITE_HEADER = "Botnet Administration"
 ADMIN_SITE_TITLE = "Botnet Admin Portal"
 ADMIN_INDEX_TITLE = "Welcome to Botnet Administration"
 
-# WhiteNoise Middleware (add after SecurityMiddleware)
+# Middleware Configuration
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',

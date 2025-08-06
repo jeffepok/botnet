@@ -21,6 +21,6 @@ RUN useradd -m -u 1000 appuser
 # Create staticfiles directory and set proper permissions
 RUN mkdir -p /app/staticfiles /app/media && \
     chown -R appuser:appuser /app && \
-    chmod -R 755 /app/staticfiles
+    chmod -R 755 /app/staticfiles /app/media
 
 USER appuser
