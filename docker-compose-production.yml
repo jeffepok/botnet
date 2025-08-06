@@ -123,9 +123,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    networks:
-      - nginx_proxy
-      - botnet_network
     volumes:
       - ./nginx:/etc/nginx/conf.d:ro
       -  /etc/letsencrypt:/etc/letsencrypt
