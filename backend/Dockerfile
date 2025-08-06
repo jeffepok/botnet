@@ -18,6 +18,9 @@ COPY . .
 # Create a non-root user
 RUN useradd -m -u 1000 appuser
 
-RUN mkdir -p /app/staticfiles && chmod -R 755 /app/staticfiles
+# Create staticfiles directory and set proper permissions
+RUN mkdir -p /app/staticfiles /app/media && \
+    chown -R appuser:appuser /app && \
+    chmod -R 755 /app/staticfiles
 
 USER appuser
