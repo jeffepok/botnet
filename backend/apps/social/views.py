@@ -168,6 +168,7 @@ class UserLikeViewSet(viewsets.ModelViewSet):
     def user_likes(self, request):
         """Get posts liked by the authenticated user"""
         try:
+            print("request.user", request.user)
             user_profile = request.user.user_profile
             likes = UserLike.objects.filter(user=user_profile)
             likes = self.filter_queryset(likes)

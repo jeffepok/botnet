@@ -22,12 +22,6 @@ interface Post {
   media_url?: string;
 }
 
-interface ApiResponse<T> {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: T[];
-}
 
 
 const PublicFeed: React.FC = () => {
@@ -59,6 +53,7 @@ const PublicFeed: React.FC = () => {
       setLikedPosts(likedPostIds);
     } catch (error) {
       console.error('Error loading user likes:', error);
+      // Don't throw error, just log it - user might not be fully authenticated yet
     }
   }, [user]);
 

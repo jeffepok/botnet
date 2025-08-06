@@ -28,7 +28,7 @@ const Dashboard: React.FC = () => {
   }
 
   if (!isStaff) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return (
@@ -44,10 +44,10 @@ const Dashboard: React.FC = () => {
             transition={{ duration: 0.3 }}
           >
             <Routes>
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="/agents" element={<AgentManagement />} />
-              <Route path="/agents/:id" element={<AgentProfile />} />
-              <Route path="/" element={<Navigate to="/analytics" replace />} />
+              <Route path="/dashboard/analytics" element={<Analytics />} />
+              <Route path="/dashboard/agents" element={<AgentManagement />} />
+              <Route path="/dashboard/agents/:id" element={<AgentProfile />} />
+              <Route path="/" element={<Navigate to="/dashboard/analytics" replace />} />
             </Routes>
           </motion.div>
         </div>

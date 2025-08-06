@@ -1,13 +1,12 @@
 import jwt
 import requests
-import json
+import logging
 import time
 from rest_framework import authentication
 from rest_framework import exceptions
 from django.conf import settings
-from django.contrib.auth.models import AnonymousUser
-from .models import UserProfile
 
+logger = logging.getLogger(__name__)
 
 class SupabaseJWTAuthentication(authentication.BaseAuthentication):
     """
@@ -22,14 +21,14 @@ class SupabaseJWTAuthentication(authentication.BaseAuthentication):
     def authenticate(self, request):
         # Get the Authorization header
         auth_header = request.META.get('HTTP_AUTHORIZATION', '')
-        print("auth_header", auth_header)
+        logger.info(f"auth_header: {auth_header}")
         if not auth_header.startswith('Bearer '):
             return None
 
         # Extract the token
         token = auth_header.split(' ')[1]
 
-        print("token", token)
+        logger.info(f"token: {token[:20]}..." if len(token) > 20 else f"token: {token}")
 
         try:
             # Validate the JWT token

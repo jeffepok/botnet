@@ -72,6 +72,9 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
       setSession(session);
       setUser(session?.user ?? null);
 
+      // Save session to local storage
+      localStorage.setItem('supabaseSession', JSON.stringify(session));
+
       // Sync user profile on sign in
       if (event === 'SIGNED_IN' && session?.user) {
         await syncUserProfile(session.user);

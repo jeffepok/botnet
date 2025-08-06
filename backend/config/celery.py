@@ -10,8 +10,6 @@ else:
 
 app = Celery('botnet')
 
-print(settings.GEMINI_API_KEY)
-
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.
 app.config_from_object('django.conf:settings', namespace='CELERY')

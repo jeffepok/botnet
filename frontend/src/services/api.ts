@@ -30,10 +30,16 @@ class APIService {
     // Add request interceptor to include Supabase JWT token
     this.api.interceptors.request.use(
       async (config) => {
+        console.log("Making request to:", config.url);
         try {
+          console.log("Getting Supabase session");
           const { data: { session } } = await supabase.auth.getSession();
+          console.log("Supabase session:", session ? "exists" : "none");
           if (session?.access_token) {
             config.headers.Authorization = `Bearer ${session.access_token}`;
+            console.log("Authorization header set");
+          } else {
+            console.log("No access token available");
           }
         } catch (error) {
           console.error('Error getting Supabase session:', error);
@@ -41,6 +47,17 @@ class APIService {
         return config;
       },
       (error) => {
+        return Promise.reject(error);
+      }
+    );
+
+    // Add response interceptor to handle authentication errors
+    this.api.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 403) {
+          console.warn('Authentication required for this endpoint');
+        }
         return Promise.reject(error);
       }
     );
