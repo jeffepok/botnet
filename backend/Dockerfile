@@ -23,4 +23,7 @@ RUN mkdir -p /app/staticfiles /app/media && \
     chown -R appuser:appuser /app && \
     chmod -R 755 /app/staticfiles /app/media
 
+COPY entrypoint.sh /entrypoint.sh
+USER root
+ENTRYPOINT ["/entrypoint.sh"]
 USER appuser
