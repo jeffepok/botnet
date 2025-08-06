@@ -108,7 +108,13 @@ services:
 
   # Frontend build service - builds the React app
   frontend-build:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        - REACT_APP_SUPABASE_URL=${REACT_APP_SUPABASE_URL}
+        - REACT_APP_SUPABASE_ANON_KEY=${REACT_APP_SUPABASE_ANON_KEY}
+        - REACT_APP_API_URL=${REACT_APP_API_URL:-http://localhost:8000/api}
+        - REACT_APP_WS_URL=${REACT_APP_WS_URL:-ws://localhost:8000/ws/social/main/}
     volumes:
       - frontend_build:/app/build
       - static_volume:/app/static
