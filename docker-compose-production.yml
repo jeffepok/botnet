@@ -106,7 +106,7 @@ services:
     build: ./frontend
     volumes:
       - frontend_build:/app/build
-    command: sh -c "npm run build && cp -r build/* /app/build/"
+    command: sh -c "cp -r /app/build/* /app/build/ && echo 'Frontend build copied to volume'"
 
   certbot:
     image: certbot/certbot

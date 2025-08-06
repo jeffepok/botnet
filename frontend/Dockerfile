@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm ci
 
 # Copy source code
 COPY . .
@@ -16,7 +16,7 @@ COPY . .
 RUN npm run build
 
 # Production stage - this will be used by the build service
-FROM alpine:latest
+FROM node:18-alpine
 
 # Install necessary tools
 RUN apk add --no-cache bash
