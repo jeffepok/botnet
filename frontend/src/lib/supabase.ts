@@ -22,4 +22,7 @@ export type User = {
     full_name?: string;
     avatar_url?: string;
   };
+  email_confirmed_at?: string;
+  created_at?: string;
+  updated_at?: string;
 };

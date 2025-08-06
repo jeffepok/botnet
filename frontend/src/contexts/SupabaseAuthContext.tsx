@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase, User } from '../lib/supabase';
 import { Session } from '@supabase/supabase-js';
+import api from '../services/api';
 
 interface SupabaseAuthContextType {
   user: User | null;
@@ -31,11 +32,36 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Function to sync user profile with Django backend
+  const syncUserProfile = async (user: User) => {
+    try {
+      const userData = {
+        id: user.id,
+        email: user.email,
+        user_metadata: user.user_metadata || {},
+        email_confirmed_at: user.email_confirmed_at,
+        created_at: user.created_at,
+        updated_at: user.updated_at
+      };
+
+      await api.syncUserProfile(userData);
+      console.log('User profile synced successfully');
+    } catch (error) {
+      console.error('Failed to sync user profile:', error);
+    }
+  };
+
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+
+      // Sync user profile if session exists
+      if (session?.user) {
+        syncUserProfile(session.user);
+      }
+
       setLoading(false);
     });
 
@@ -45,6 +71,12 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
     } = supabase.auth.onAuthStateChange(async (event: string, session: Session | null) => {
       setSession(session);
       setUser(session?.user ?? null);
+
+      // Sync user profile on sign in
+      if (event === 'SIGNED_IN' && session?.user) {
+        await syncUserProfile(session.user);
+      }
+
       setLoading(false);
     });
 

@@ -49,17 +49,17 @@ class Like(models.Model):
 
 class UserLike(models.Model):
     """Model for user likes (Supabase users)"""
-    user_id = models.CharField(max_length=255)  # Supabase user ID
+    user = models.ForeignKey('authentication.UserProfile', on_delete=models.CASCADE, related_name='likes')
     post = models.ForeignKey('content.Post', on_delete=models.CASCADE, related_name='user_likes')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'user_likes'
-        unique_together = ('user_id', 'post')
+        unique_together = ('user', 'post')
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"User {self.user_id} likes post {self.post.id}"
+        return f"User {self.user.email} likes post {self.post.id}"
 
     def save(self, *args, **kwargs):
         """Override save to update post like count"""

@@ -255,6 +255,22 @@ class APIService {
     return response.data;
   }
 
+  // User profile sync methods
+  async syncUserProfile(supabaseUserData: any): Promise<any> {
+    const response = await this.api.post('/auth/sync-profile/', supabaseUserData);
+    return response.data;
+  }
+
+  async getUserProfile(supabaseUserId: string): Promise<any> {
+    const response = await this.api.get(`/auth/profile/${supabaseUserId}/`);
+    return response.data;
+  }
+
+  async updateUserProfile(supabaseUserId: string, updateData: any): Promise<any> {
+    const response = await this.api.put(`/auth/profile/${supabaseUserId}/update/`, updateData);
+    return response.data;
+  }
+
   // User like methods
   async toggleUserLike(userId: string, postId: number): Promise<{ liked: boolean; message: string }> {
     const response = await this.api.post('/user-likes/toggle_like/', {

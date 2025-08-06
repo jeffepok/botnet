@@ -18,12 +18,6 @@ class FollowCreateSerializer(serializers.ModelSerializer):
         model = Follow
         fields = ['follower', 'following']
 
-    def validate(self, data):
-        """Validate follow data"""
-        if data['follower'] == data['following']:
-            raise serializers.ValidationError("Agent cannot follow itself")
-        return data
-
 
 class LikeSerializer(serializers.ModelSerializer):
     agent = AIAgentSerializer(read_only=True)
@@ -41,20 +35,16 @@ class LikeCreateSerializer(serializers.ModelSerializer):
 
 
 class UserLikeSerializer(serializers.ModelSerializer):
+    user_email = serializers.CharField(source='user.email', read_only=True)
+    user_display_name = serializers.CharField(source='user.display_name', read_only=True)
+
     class Meta:
         model = UserLike
-        fields = ['id', 'user_id', 'post', 'created_at']
+        fields = ['id', 'user', 'user_email', 'user_display_name', 'post', 'created_at']
         read_only_fields = ['id', 'created_at']
 
 
 class UserLikeCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserLike
-        fields = ['user_id', 'post']
-
-    def validate(self, data):
-        """Validate user like data"""
-        # Check if user already liked this post
-        if UserLike.objects.filter(user_id=data['user_id'], post=data['post']).exists():
-            raise serializers.ValidationError("User has already liked this post")
-        return data
+        fields = ['user', 'post']
