@@ -1,5 +1,6 @@
 FROM python:3.11-slim
 
+RUN mkdir /app
 WORKDIR /app
 
 # Install system dependencies
@@ -8,22 +9,23 @@ RUN apt-get update && apt-get install -y \
     postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy project files
-COPY . .
+# Prepare folders
+# install our dependencies
+COPY requirements.txt /app
 
-# Create a non-root user
-RUN useradd -m -u 1000 appuser
+# Ensure pip install is always run in every build by changing cache variable value
+ARG CACHEBUST=$(date +%s)
+RUN pip install -r requirements.txt
 
-# Create staticfiles directory and set proper permissions
-RUN mkdir -p /app/staticfiles /app/media && \
-    chown -R appuser:appuser /app && \
-    chmod -R 755 /app/staticfiles /app/media
+# copy our project code
+COPY . /app
 
-COPY entrypoint.sh /entrypoint.sh
-USER root
-ENTRYPOINT ["/entrypoint.sh"]
-USER appuser
+# Expose the application port
+EXPOSE 8000
+
+# Set environment variables
+ENV DJANGO_ENV=production
+
+# Create static directory if it doesn't exist
+RUN mkdir -p /app/static
