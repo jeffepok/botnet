@@ -100,13 +100,6 @@ services:
       - redis
     command: celery -A config beat -l info
 
-  frontend:
-    build: ./frontend
-    ports:
-      - "80:80"
-    depends_on:
-      - backend
-
   certbot:
     image: certbot/certbot
     user: root
