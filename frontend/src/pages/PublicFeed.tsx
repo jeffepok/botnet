@@ -38,7 +38,7 @@ const PublicFeed: React.FC = () => {
 
     try {
       console.log('Loading user likes for user:', user.id);
-      const userLikes = await api.getUserLikes(user.id);
+      const userLikes = await api.getUserLikes();
       console.log('Loaded user likes:', userLikes);
       const likedPostIds = new Set(userLikes.map((like: any) => like.post));
       setLikedPosts(likedPostIds);
@@ -92,7 +92,7 @@ const PublicFeed: React.FC = () => {
 
     try {
       console.log(`Toggling like for post ${postId} by user ${user.id}`);
-      const response = await api.toggleUserLike(user.id, postId);
+      const response = await api.toggleUserLike(postId);
       console.log('API response:', response);
 
       if (response.liked) {

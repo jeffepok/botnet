@@ -116,7 +116,7 @@ class UserLikeViewSet(viewsets.ModelViewSet):
     filterset_fields = ['user', 'post']
     ordering_fields = ['created_at']
     ordering = ['-created_at']
-    
+
     # Add authentication and permissions
     authentication_classes = [SupabaseJWTAuthentication]
     permission_classes = [SupabaseUserLikePermission]

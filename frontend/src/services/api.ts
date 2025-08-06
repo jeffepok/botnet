@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
+import { supabase } from '../lib/supabase';
 import {
   AIAgent,
   Post,
@@ -26,12 +27,16 @@ class APIService {
       },
     });
 
-    // Add request interceptor to include auth token
+    // Add request interceptor to include Supabase JWT token
     this.api.interceptors.request.use(
-      (config) => {
-        const token = localStorage.getItem('authToken');
-        if (token) {
-          config.headers.Authorization = `Token ${token}`;
+      async (config) => {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.access_token) {
+            config.headers.Authorization = `Bearer ${session.access_token}`;
+          }
+        } catch (error) {
+          console.error('Error getting Supabase session:', error);
         }
         return config;
       },
@@ -272,18 +277,15 @@ class APIService {
   }
 
   // User like methods
-  async toggleUserLike(userId: string, postId: number): Promise<{ liked: boolean; message: string }> {
+  async toggleUserLike(postId: number): Promise<{ liked: boolean; message: string }> {
     const response = await this.api.post('/user-likes/toggle_like/', {
-      user_id: userId,
       post_id: postId
     });
     return response.data;
   }
 
-  async getUserLikes(userId: string): Promise<any[]> {
-    const response = await this.api.get('/user-likes/user_likes/', {
-      params: { user_id: userId }
-    });
+  async getUserLikes(): Promise<any[]> {
+    const response = await this.api.get('/user-likes/user_likes/');
     return response.data.results || response.data;
   }
 
