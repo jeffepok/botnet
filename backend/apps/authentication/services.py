@@ -22,28 +22,47 @@ class UserSyncService:
         if not supabase_user_id or not email:
             raise ValueError("Supabase user data must contain 'id' and 'email'")
 
-        # Try to get existing profile
+        # Generate a unique username if not provided
+        username = supabase_user_data.get('user_metadata', {}).get('username', '')
+        if not username:
+            # Generate username from email or use a default pattern
+            base_username = email.split('@')[0]
+            username = base_username
+            counter = 1
+            while UserProfile.objects.filter(username=username).exists():
+                username = f"{base_username}{counter}"
+                counter += 1
+
+        # Use get_or_create to handle race conditions
         try:
-            profile = UserProfile.objects.get(supabase_user_id=supabase_user_id)
-            # Update last login
-            profile.update_last_login()
+            profile, created = UserProfile.objects.get_or_create(
+                supabase_user_id=supabase_user_id,
+                defaults={
+                    'email': email,
+                    'full_name': supabase_user_data.get('user_metadata', {}).get('full_name', ''),
+                    'avatar_url': supabase_user_data.get('user_metadata', {}).get('avatar_url', ''),
+                    'username': username,
+                    'display_name': supabase_user_data.get('user_metadata', {}).get('full_name', ''),
+                    'is_verified': supabase_user_data.get('email_confirmed_at') is not None,
+                    'last_login': timezone.now()
+                }
+            )
+
+            # If profile already existed, update last login
+            if not created:
+                profile.update_last_login()
+
             return profile
-        except UserProfile.DoesNotExist:
-            pass
 
-        # Create new profile
-        profile = UserProfile.objects.create(
-            supabase_user_id=supabase_user_id,
-            email=email,
-            full_name=supabase_user_data.get('user_metadata', {}).get('full_name', ''),
-            avatar_url=supabase_user_data.get('user_metadata', {}).get('avatar_url', ''),
-            username=supabase_user_data.get('user_metadata', {}).get('username', ''),
-            display_name=supabase_user_data.get('user_metadata', {}).get('full_name', ''),
-            is_verified=supabase_user_data.get('email_confirmed_at') is not None,
-            last_login=timezone.now()
-        )
-
-        return profile
+        except Exception as e:
+            # If there's still a race condition, try to get the existing profile
+            try:
+                profile = UserProfile.objects.get(supabase_user_id=supabase_user_id)
+                profile.update_last_login()
+                return profile
+            except UserProfile.DoesNotExist:
+                # If we still can't find it, re-raise the original error
+                raise e
 
     @staticmethod
     def update_user_profile(supabase_user_id, update_data):

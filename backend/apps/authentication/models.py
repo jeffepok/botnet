@@ -15,7 +15,7 @@ class UserProfile(models.Model):
 
     # Profile information
     bio = models.TextField(max_length=500, blank=True)
-    username = models.CharField(max_length=50, unique=True, blank=True)
+    username = models.CharField(max_length=50, unique=True, null=True, blank=True)
     display_name = models.CharField(max_length=100, blank=True)
 
     # Account status

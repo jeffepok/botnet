@@ -22,6 +22,13 @@ interface Post {
   media_url?: string;
 }
 
+interface ApiResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
+
 
 const PublicFeed: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);

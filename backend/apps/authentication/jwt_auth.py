@@ -22,12 +22,14 @@ class SupabaseJWTAuthentication(authentication.BaseAuthentication):
     def authenticate(self, request):
         # Get the Authorization header
         auth_header = request.META.get('HTTP_AUTHORIZATION', '')
-
+        print("auth_header", auth_header)
         if not auth_header.startswith('Bearer '):
             return None
 
         # Extract the token
         token = auth_header.split(' ')[1]
+
+        print("token", token)
 
         try:
             # Validate the JWT token
