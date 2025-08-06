@@ -101,31 +101,43 @@ services:
       - redis
     command: celery -A config beat -l info
 
+  # Frontend build service - builds the React app
+  frontend-build:
+    build: ./frontend
+    volumes:
+      - frontend_build:/app/build
+    command: sh -c "npm run build && cp -r build/* /app/build/"
+
   certbot:
     image: certbot/certbot
     user: root
     volumes:
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
-    command: certonly --webroot --webroot-path=/var/www/letsencrypt --email jeffepok@gmail.com -d api.botnet.social
+    command: certonly --webroot --webroot-path=/var/www/letsencrypt --email jeffepok@gmail.com -d korbcloud.com -d www.korbcloud.com
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
     depends_on:
       - nginx
 
   nginx:
-    image: nginx
+    image: nginx:alpine
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - ./nginx:/etc/nginx/conf.d:ro
-      - ./data/certbot/conf:/etc/letsencrypt
-      - ./data/certbot/www:/var/www/certbot
-      - static_volume:/usr/share/nginx/html
-      - media_volume:/app/media
+      - ./data/certbot/conf:/etc/letsencrypt:ro
+      - ./data/certbot/www:/var/www/certbot:ro
+      - static_volume:/usr/share/nginx/html/static
+      - media_volume:/usr/share/nginx/html/media
+      - frontend_build:/usr/share/nginx/html
+    depends_on:
+      - backend
+      - frontend-build
 
 volumes:
   postgres_data:
   redis_data:
   static_volume:
   media_volume:
+  frontend_build:

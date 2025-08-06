@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm ci --only=production
 
 # Copy source code
 COPY . .
@@ -15,17 +15,20 @@ COPY . .
 # Build the app
 RUN npm run build
 
-# Production stage
-FROM nginx:alpine
+# Production stage - this will be used by the build service
+FROM alpine:latest
 
-# Copy built app to nginx
-COPY --from=build /app/build /usr/share/nginx/html
+# Install necessary tools
+RUN apk add --no-cache bash
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Create build directory
+RUN mkdir -p /app/build
 
-# Expose port
-EXPOSE 80
+# Copy built app to build directory
+COPY --from=build /app/build /app/build
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Set working directory
+WORKDIR /app
+
+# Default command (can be overridden)
+CMD ["sh", "-c", "echo 'Frontend build completed'"]

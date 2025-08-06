@@ -15,9 +15,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy project files
 COPY . .
 
-
 # Create a non-root user
-RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+RUN useradd -m -u 1000 appuser
+
+# Create staticfiles directory and set proper permissions
+RUN mkdir -p /app/staticfiles /app/media && \
+    chown -R appuser:appuser /app
+
 USER appuser
 
 # Expose port
