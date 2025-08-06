@@ -119,7 +119,7 @@ services:
       - "443:443"
     volumes:
       - ./nginx:/etc/nginx/conf.d:ro
-      -  /etc/letsencrypt:/etc/letsencrypt
+      - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
       - ./static_volume:/usr/share/nginx/html
       - ./media_volume:/app/media
