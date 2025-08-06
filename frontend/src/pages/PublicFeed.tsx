@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, MessageCircle, Share, MoreHorizontal, LogIn } from 'lucide-react';
 import api from '../services/api';
@@ -22,9 +22,19 @@ interface Post {
   media_url?: string;
 }
 
+interface ApiResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
+
 const PublicFeed: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [nextPage, setNextPage] = useState<string | null>(null);
   const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [pendingLikePostId, setPendingLikePostId] = useState<number | null>(null);
@@ -32,6 +42,10 @@ const PublicFeed: React.FC = () => {
   const [showCommentModal, setShowCommentModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const { user, signOut } = useSupabaseAuth();
+
+  // Intersection observer ref for infinite scroll
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const loadingRef = useRef<HTMLDivElement>(null);
 
   const loadUserLikes = useCallback(async () => {
     if (!user) return;
@@ -60,16 +74,74 @@ const PublicFeed: React.FC = () => {
     }
   }, [user, loadUserLikes]);
 
-  const fetchPosts = async () => {
+  const fetchPosts = async (page?: number) => {
     try {
-      const response = await api.getPosts();
-      setPosts(response.results || response);
+      const params = page ? { page } : {};
+      const response = await api.getPosts(params);
+
+      if (response.results) {
+        // First page load
+        setPosts(response.results);
+        setNextPage(response.next);
+        setHasMore(!!response.next);
+      } else {
+        // Fallback for non-paginated response
+        setPosts(response as unknown as Post[]);
+        setHasMore(false);
+      }
     } catch (error) {
       console.error('Error fetching posts:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  const loadMorePosts = useCallback(async () => {
+    if (!nextPage || loadingMore) return;
+
+    setLoadingMore(true);
+    try {
+      // Extract page number from next URL
+      const url = new URL(nextPage);
+      const page = url.searchParams.get('page');
+
+      const params = page ? { page } : {};
+      const response = await api.getPosts(params);
+
+      if (response.results) {
+        setPosts(prev => [...prev, ...response.results]);
+        setNextPage(response.next);
+        setHasMore(!!response.next);
+      }
+    } catch (error) {
+      console.error('Error loading more posts:', error);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [nextPage, loadingMore]);
+
+  // Set up intersection observer for infinite scroll
+  useEffect(() => {
+    if (loadingRef.current) {
+      observerRef.current = new IntersectionObserver(
+        (entries) => {
+          const [entry] = entries;
+          if (entry.isIntersecting && hasMore && !loadingMore) {
+            loadMorePosts();
+          }
+        },
+        { threshold: 0.1 }
+      );
+
+      observerRef.current.observe(loadingRef.current);
+    }
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [hasMore, loadingMore, loadMorePosts]);
 
     const handleLike = async (postId: number) => {
     if (!user) {
@@ -313,6 +385,32 @@ const PublicFeed: React.FC = () => {
           >
             <div className="text-gray-400 text-lg">
               No posts yet. Be the first to share something amazing!
+            </div>
+          </motion.div>
+        )}
+
+        {/* Infinite scroll loading indicator */}
+        {hasMore && (
+          <div ref={loadingRef} className="text-center py-8">
+            {loadingMore ? (
+              <LoadingSpinner />
+            ) : (
+              <div className="text-gray-400 text-sm">
+                Scroll to load more posts...
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* End of feed indicator */}
+        {!hasMore && posts.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-8"
+          >
+            <div className="text-gray-400 text-sm">
+              You've reached the end of the feed! 🎉
             </div>
           </motion.div>
         )}

@@ -53,7 +53,7 @@ services:
     depends_on:
       - db
       - redis
-    command: daphne -b 0.0.0.0 -p 8000 config.asgi:application
+    command: python manage.py collectstatic --noinput && python manage.py migrate && daphne -b 0.0.0.0 -p 8000 config.asgi:application
 
   celery:
     build: ./backend

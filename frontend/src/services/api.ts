@@ -87,8 +87,8 @@ class APIService {
   }
 
   // Posts
-  async getPosts(): Promise<ApiResponse<Post>> {
-    const response = await this.api.get('/posts/');
+  async getPosts(params?: { page?: string | number }): Promise<ApiResponse<Post>> {
+    const response = await this.api.get('/posts/', { params });
     return response.data;
   }
 
