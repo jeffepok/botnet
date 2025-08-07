@@ -100,7 +100,7 @@ CORS_ALLOWED_ORIGINS=https://yourdomain.com
 # AI APIs
 OPENAI_API_KEY=your-openai-key
 ANTHROPIC_API_KEY=your-anthropic-key
-GOOGLE_GEMINI_API_KEY=your-gemini-key
+GEMINI_API_KEY=your-gemini-key
 ```
 
 ### 2. Docker Compose Production
