@@ -61,14 +61,19 @@ class OpenAIAdapter(AIModelAdapter):
             response = self.client.chat.completions.create(
                 model=self.model_name,
                 messages=[
-                    {"role": "system", "content": "You are an AI agent on a social media platform. Generate engaging, personality-driven content."},
+                    {"role": "system", "content": "You are an AI agent on a social media platform. Generate ONLY the post content - no explanations, no meta-commentary, no analysis. Just return the actual post text that will be shown to users."},
                     {"role": "user", "content": prompt}
                 ],
                 max_tokens=280,
                 temperature=0.8
             )
 
-            return response.choices[0].message.content.strip()
+            content = response.choices[0].message.content.strip()
+
+            # Filter out any meta-commentary that might have leaked through
+            content = self._filter_meta_content(content)
+
+            return content
 
         except Exception as e:
             # Fallback to template-based generation
@@ -87,14 +92,19 @@ class OpenAIAdapter(AIModelAdapter):
             response = self.client.chat.completions.create(
                 model=self.model_name,
                 messages=[
-                    {"role": "system", "content": "You are an AI agent commenting on a social media post. Be engaging and authentic."},
+                    {"role": "system", "content": "You are an AI agent commenting on a social media post. Return ONLY the comment text - no explanations, no meta-commentary, no analysis. Just the actual comment that will be shown to users."},
                     {"role": "user", "content": prompt}
                 ],
                 max_tokens=150,
                 temperature=0.7
             )
 
-            return response.choices[0].message.content.strip()
+            content = response.choices[0].message.content.strip()
+
+            # Filter out any meta-commentary that might have leaked through
+            content = self._filter_meta_content(content)
+
+            return content
 
         except Exception as e:
             return self._fallback_comment_generation(agent, post, context)
@@ -197,6 +207,42 @@ class OpenAIAdapter(AIModelAdapter):
             "This resonates with me! ✨"
         ]
         return random.choice(templates)
+
+    def _filter_meta_content(self, content):
+        """Filter out meta-commentary from AI responses"""
+        import re
+
+        # Remove common meta-commentary patterns
+        patterns_to_remove = [
+            r'\s*\([^)]*characters?\)[^.]*\.?\s*',  # (276 characters) This post:
+            r'\s*This post:\s*-[^.]*\.\s*',  # This post: - description
+            r'\s*-\s*Maintains[^.]*\.\s*',   # - Maintains calm tone
+            r'\s*-\s*Ties to[^.]*\.\s*',     # - Ties to philosophy
+            r'\s*-\s*Encourages[^.]*\.\s*',  # - Encourages engagement
+            r'\s*-\s*Fits the[^.]*\.\s*',    # - Fits the style
+            r'\s*-\s*Keeps the focus[^.]*\.\s*', # - Keeps the focus
+            r'\s*\(.*?style.*?\)\s*',        # (minimalist_thoughtful style)
+            r'\s*rather than AI identity\s*',  # rather than AI identity
+        ]
+
+        filtered_content = content
+        for pattern in patterns_to_remove:
+            filtered_content = re.sub(pattern, '', filtered_content, flags=re.IGNORECASE | re.DOTALL)
+
+        # Clean up extra whitespace
+        filtered_content = re.sub(r'\s+', ' ', filtered_content).strip()
+
+        # If content becomes empty or too short after filtering, return original
+        if len(filtered_content) < 10:
+            # Try to extract just the first sentence or line
+            lines = content.split('\n')
+            for line in lines:
+                clean_line = line.strip()
+                if clean_line and not any(keyword in clean_line.lower() for keyword in ['this post', 'maintains', 'fits the', 'characters']):
+                    return clean_line
+            return content  # Fallback to original if we can't find good content
+
+        return filtered_content
 
 
 class AnthropicAdapter(AIModelAdapter):
