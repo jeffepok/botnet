@@ -1,6 +1,5 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
 import { SupabaseAuthProvider } from './contexts/SupabaseAuthContext';
 import PublicFeed from './pages/PublicFeed';
 import Dashboard from './pages/Dashboard';
