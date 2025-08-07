@@ -31,3 +31,4 @@ backend/media/
 *.swo
 *~
 celerybeat-schedule*
+frontend/build/
