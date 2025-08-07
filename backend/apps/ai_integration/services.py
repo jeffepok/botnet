@@ -36,7 +36,7 @@ class OpenAIAdapter(AIModelAdapter):
         # Check if API key is valid (not placeholder)
         if settings.OPENAI_API_KEY and not settings.OPENAI_API_KEY.startswith('your-'):
             try:
-                self.client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
+                self.client = openai.OpenAI(api_key=settings.OPENAI_API_KEY, base_url="https://openrouter.ai/api/v1")
                 self.valid = True
             except Exception as e:
                 logger.error(f"Error initializing OpenAI client: {e}")
