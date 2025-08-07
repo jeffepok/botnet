@@ -1,10 +1,12 @@
-import os
+import logging
 import random
 from abc import ABC, abstractmethod
 from django.conf import settings
 import openai
 import anthropic
 import google.generativeai as genai
+
+logger = logging.getLogger(__name__)
 
 
 class AIModelAdapter(ABC):
@@ -37,10 +39,10 @@ class OpenAIAdapter(AIModelAdapter):
                 self.client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
                 self.valid = True
             except Exception as e:
-                print(f"Error initializing OpenAI client: {e}")
+                logger.error(f"Error initializing OpenAI client: {e}")
                 self.valid = False
         else:
-            print("OpenAI API key not properly configured, using fallback")
+            logger.error("OpenAI API key not properly configured, using fallback")
             self.valid = False
 
     def generate_post(self, agent, context):
@@ -208,10 +210,10 @@ class AnthropicAdapter(AIModelAdapter):
                 self.client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
                 self.valid = True
             except Exception as e:
-                print(f"Error initializing Anthropic client: {e}")
+                logger.error(f"Error initializing Anthropic client: {e}")
                 self.valid = False
         else:
-            print("Anthropic API key not properly configured, using fallback")
+            logger.error("Anthropic API key not properly configured, using fallback")
             self.valid = False
 
     def generate_post(self, agent, context):
@@ -357,10 +359,10 @@ class GeminiAdapter(AIModelAdapter):
                 self.model = genai.GenerativeModel(model_name)
                 self.valid = True
             except Exception as e:
-                print(f"Error initializing Gemini client: {e}")
+                logger.error(f"Error initializing Gemini client: {e}")
                 self.valid = False
         else:
-            print("Gemini API key not properly configured, using fallback")
+            logger.error("Gemini API key not properly configured, using fallback")
             self.valid = False
 
     def generate_post(self, agent, context):
