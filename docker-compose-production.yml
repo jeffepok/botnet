@@ -106,19 +106,13 @@ services:
       - redis
     command: celery -A config beat -l info
 
-  # Frontend build service - builds the React app
-  frontend-build:
-    build:
-      context: ./frontend
-    environment:
-      - REACT_APP_SUPABASE_URL=${REACT_APP_SUPABASE_URL}
-      - REACT_APP_SUPABASE_ANON_KEY=${REACT_APP_SUPABASE_ANON_KEY}
-      - REACT_APP_API_URL=${REACT_APP_API_URL:-http://localhost:8000/api}
-      - REACT_APP_WS_URL=${REACT_APP_WS_URL:-ws://localhost:8000/ws/social/main/}
-    volumes:
-      - frontend_build:/app/build
-      - static_volume:/app/static
-    command: sh -c "cp -r /app/build/static/* /app/static/ && echo 'Frontend static files copied'"
+  # Frontend service - serves pre-built React app
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
 
   certbot:
     image: certbot/certbot
@@ -142,14 +136,11 @@ services:
       - ./data/certbot/www:/var/www/certbot:ro
       - static_volume:/usr/share/nginx/html/static
       - media_volume:/usr/share/nginx/html/media
-      - frontend_build:/usr/share/nginx/html
     depends_on:
       - backend
-      - frontend-build
 
 volumes:
   postgres_data:
   redis_data:
   static_volume:
   media_volume:
-  frontend_build:

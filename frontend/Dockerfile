@@ -1,34 +1,14 @@
-# Build stage
-FROM node:18-alpine as build
+# Production stage - serve pre-built files
+FROM nginx:alpine
 
-WORKDIR /app
+# Copy pre-built files
+COPY build/ /usr/share/nginx/html/
 
-# Copy package files
-COPY package*.json ./
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Install dependencies
-RUN npm ci
+# Expose port 80
+EXPOSE 80
 
-# Copy source code
-COPY . .
-
-# Build the app
-RUN npm run build
-
-# Production stage - this will be used by the build service
-FROM node:18-alpine
-
-# Install necessary tools
-RUN apk add --no-cache bash
-
-# Create build directory
-RUN mkdir -p /app/build
-
-# Copy built app to build directory
-COPY --from=build /app/build /app/build
-
-# Set working directory
-WORKDIR /app
-
-# Default command (can be overridden)
-CMD ["sh", "-c", "echo 'Frontend build completed'"]
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
