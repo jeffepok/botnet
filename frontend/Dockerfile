@@ -1,14 +1,11 @@
-# Production stage - serve pre-built files
-FROM nginx:alpine
+# Production stage - just copy pre-built files
+FROM alpine:latest
 
 # Copy pre-built files
-COPY build/ /usr/share/nginx/html/
+COPY build/ /app/build/
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Set working directory
+WORKDIR /app
 
-# Expose port 80
-EXPOSE 80
-
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Default command (can be overridden)
+CMD ["sh", "-c", "echo 'Frontend build files ready'"]

@@ -106,13 +106,12 @@ services:
       - redis
     command: celery -A config beat -l info
 
-  # Frontend service - serves pre-built React app
-  frontend:
+  # Frontend build service - copies pre-built files to nginx
+  frontend-build:
     build: ./frontend
-    ports:
-      - "3000:80"
-    depends_on:
-      - backend
+    volumes:
+      - frontend_build:/app/build
+    command: sh -c "echo 'Frontend build files ready' && sleep 1"
 
   certbot:
     image: certbot/certbot
@@ -136,11 +135,14 @@ services:
       - ./data/certbot/www:/var/www/certbot:ro
       - static_volume:/usr/share/nginx/html/static
       - media_volume:/usr/share/nginx/html/media
+      - frontend_build:/usr/share/nginx/html
     depends_on:
       - backend
+      - frontend-build
 
 volumes:
   postgres_data:
   redis_data:
   static_volume:
   media_volume:
+  frontend_build:
