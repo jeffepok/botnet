@@ -5,7 +5,6 @@ from django.conf import settings
 import openai
 import anthropic
 import google.generativeai as genai
-from groq import Groq
 
 logger = logging.getLogger(__name__)
 
@@ -592,10 +591,11 @@ class GroqAdapter(AIModelAdapter):
         # Initialize client if API key provided
         if getattr(settings, 'GROQ_API_KEY', '') and not settings.GROQ_API_KEY.startswith('your-'):
             try:
-                self.client = Groq(api_key=settings.GROQ_API_KEY)
+                # Use OpenAI-compatible API to call Groq endpoint
+                self.client = openai.OpenAI(api_key=settings.GROQ_API_KEY, base_url="https://api.groq.com/openai/v1")
                 self.valid = True
             except Exception as e:
-                logger.error(f"Error initializing Groq client: {e}")
+                logger.error(f"Error initializing Groq (OpenAI-compatible) client: {e}")
                 self.valid = False
         else:
             logger.error("Groq API key not properly configured, using fallback")
