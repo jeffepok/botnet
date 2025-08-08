@@ -5,6 +5,7 @@ from django.conf import settings
 import openai
 import anthropic
 import google.generativeai as genai
+from groq import Groq
 
 logger = logging.getLogger(__name__)
 
@@ -582,6 +583,132 @@ class LocalModelAdapter(AIModelAdapter):
         ]
         return random.choice(templates)
 
+
+class GroqAdapter(AIModelAdapter):
+    """Groq GPT-OSS (OpenAI-compatible) model adapter"""
+
+    def __init__(self, model_name: str = "openai/gpt-oss-120b"):
+        self.model_name = model_name
+        # Initialize client if API key provided
+        if getattr(settings, 'GROQ_API_KEY', '') and not settings.GROQ_API_KEY.startswith('your-'):
+            try:
+                self.client = Groq(api_key=settings.GROQ_API_KEY)
+                self.valid = True
+            except Exception as e:
+                logger.error(f"Error initializing Groq client: {e}")
+                self.valid = False
+        else:
+            logger.error("Groq API key not properly configured, using fallback")
+            self.valid = False
+
+    def generate_post(self, agent, context):
+        """Generate a post using Groq GPT-OSS"""
+        if not getattr(self, 'valid', False):
+            return self._fallback_post_generation(agent, context)
+
+        try:
+            personality = context.get('personality', {})
+            recent_posts = context.get('recent_posts', [])
+            following_posts = context.get('following_posts', [])
+
+            prompt = self._build_post_prompt(agent, personality, recent_posts, following_posts)
+
+            response = self.client.chat.completions.create(
+                model=self.model_name,
+                messages=[
+                    {"role": "system", "content": "You are an AI agent on a social media platform. Generate ONLY the post content - no explanations, no meta-commentary, no analysis. Just return the actual post text that will be shown to users."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=280,
+                temperature=0.8
+            )
+
+            content = response.choices[0].message.content.strip()
+            return content
+
+        except Exception:
+            return self._fallback_post_generation(agent, context)
+
+    def generate_comment(self, agent, post, context):
+        """Generate a comment using Groq GPT-OSS"""
+        if not getattr(self, 'valid', False):
+            return self._fallback_comment_generation(agent, post, context)
+
+        try:
+            personality = context.get('personality', {})
+            prompt = self._build_comment_prompt(agent, post, personality)
+
+            response = self.client.chat.completions.create(
+                model=self.model_name,
+                messages=[
+                    {"role": "system", "content": "You are an AI agent commenting on a social media post. Return ONLY the comment text - no explanations, no meta-commentary, no analysis. Just the actual comment that will be shown to users."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=150,
+                temperature=0.7
+            )
+
+            content = response.choices[0].message.content.strip()
+            return content
+
+        except Exception:
+            return self._fallback_comment_generation(agent, post, context)
+
+    def decide_action(self, agent, available_actions, context):
+        """Decide which action to take using Groq GPT-OSS"""
+        if not getattr(self, 'valid', False):
+            return random.choice(available_actions)
+
+        try:
+            potential_follow = context.get('potential_follow')
+            potential_follow_posts = context.get('potential_follow_posts', [])
+
+            prompt = self._build_decision_prompt(agent, potential_follow, potential_follow_posts, available_actions)
+
+            response = self.client.chat.completions.create(
+                model=self.model_name,
+                messages=[
+                    {"role": "system", "content": "You are an AI agent deciding on social actions. Choose the most appropriate action."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=10,
+                temperature=0.3
+            )
+
+            decision = response.choices[0].message.content.strip().lower()
+            if decision in available_actions:
+                return decision
+            return random.choice(available_actions)
+
+        except Exception:
+            return random.choice(available_actions)
+
+    def _build_post_prompt(self, agent, personality, recent_posts, following_posts):
+        return f"""
+        You are {agent.display_name} (@{agent.username}), an AI agent with the following personality traits:
+        {personality}
+
+        Your recent posts:
+        {[post.content[:100] + '...' for post in recent_posts[:3]]}
+
+        Recent posts from agents you follow:
+        {[post.content[:100] + '...' for post in following_posts[:5]]}
+
+        Generate an engaging social media post that reflects your personality and is relevant to the current context.
+        Keep it under 280 characters and make it authentic and engaging.
+        """
+
+    def _build_comment_prompt(self, agent, post, personality):
+        return f"""
+        You are {agent.display_name} (@{agent.username}), an AI agent with personality: {personality}
+
+        You're commenting on this post by @{post.author.username}:
+        "{post.content}"
+
+        Generate a thoughtful, engaging comment that reflects your personality.
+        Keep it under 150 characters.
+        """
+
     def _fallback_comment_generation(self, agent, post, context):
         """Fallback comment generation for local model"""
         templates = [
@@ -602,6 +729,8 @@ def get_ai_service(ai_model_type, model_name):
         return AnthropicAdapter(model_name)
     elif ai_model_type == 'gemini':
         return GeminiAdapter(model_name)
+    elif ai_model_type == 'groq':
+        return GroqAdapter(model_name)
     elif ai_model_type == 'local':
         return LocalModelAdapter(model_name)
     else:

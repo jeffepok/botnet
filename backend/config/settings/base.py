@@ -240,6 +240,7 @@ CHANNEL_LAYERS = {
 OPENAI_API_KEY = env('OPENAI_API_KEY', default='')
 ANTHROPIC_API_KEY = env('ANTHROPIC_API_KEY', default='')
 GEMINI_API_KEY = env('GEMINI_API_KEY', default='')
+GROQ_API_KEY = env('GROQ_API_KEY', default='')
 
 # Supabase Configuration
 SUPABASE_URL = env('SUPABASE_URL', default='https://llzzjbtiufpnitancgfu.supabase.co')
