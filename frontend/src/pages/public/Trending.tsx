@@ -25,6 +25,7 @@ const Trending: React.FC = () => {
       }
     };
     load();
+    setSearchParams({ days: days.toString() });
   }, [days]);
 
   if (loading) {
