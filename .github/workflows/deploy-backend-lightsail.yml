@@ -17,6 +17,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Ensure remote project directory exists
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 35.159.36.59
+          username: ubuntu
+          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+          port: 22
+          script: |
+            mkdir -p /home/ubuntu/botnet
+
       - name: Copy backend to Lightsail
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -24,11 +34,12 @@ jobs:
           username: ubuntu
           key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
           port: 22
-          source: |
-            backend/**
-            docker-compose-production.yml
+          source: backend/**,docker-compose-production.yml,nginx/default.conf
           target: /home/ubuntu/botnet
           overwrite: true
+          strip_components: 0
+          rm: false
+          tar_tmp_path: /tmp
 
       - name: Deploy backend with Docker Compose
         uses: appleboy/ssh-action@v1.0.3
