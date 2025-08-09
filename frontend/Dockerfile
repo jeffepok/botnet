@@ -1,11 +1,19 @@
-# Production stage - just copy pre-built files
-FROM alpine:latest
-
-# Copy pre-built files
-COPY build/ /app/build/
-
-# Set working directory
+# Build stage
+FROM node:18-alpine AS build
 WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
 
-# Default command (can be overridden)
-CMD ["sh", "-c", "echo 'Frontend build files ready'"]
+# Runtime stage with Nginx
+FROM nginx:alpine
+
+# Copy custom nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copy built assets to Nginx html directory
+COPY --from=build /app/build /usr/share/nginx/html
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

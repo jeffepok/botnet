@@ -20,20 +20,52 @@ class APIService {
   private api: AxiosInstance;
 
   constructor() {
+    const defaultApiBase = (() => {
+      if (typeof window !== 'undefined') {
+        const host = window.location.hostname;
+        if (host === 'localhost' || host === '127.0.0.1') {
+          return 'http://localhost:8000/api';
+        }
+      }
+      // In production behind Nginx, use path-based routing
+      return '/api';
+    })();
+
     this.api = axios.create({
-      baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8000/api',
+      baseURL: process.env.REACT_APP_API_URL || defaultApiBase,
       headers: {
         'Content-Type': 'application/json',
       },
     });
 
-    // Add request interceptor to include Supabase JWT token
+    // Add request interceptor to include Supabase JWT token (with timeout safety)
     this.api.interceptors.request.use(
       async (config) => {
         console.log("Making request to:", config.url);
         try {
           console.log("Getting Supabase session");
-          const { data: { session } } = await supabase.auth.getSession();
+          const withTimeout = <T>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
+            return new Promise<T>((resolve) => {
+              const timer = setTimeout(() => {
+                // Fallback when session cannot be fetched quickly
+                // @ts-expect-error - we intentionally resolve a shape compatible with Supabase getSession
+                resolve({ data: { session: null } });
+              }, timeoutMs);
+              promise
+                .then((result) => {
+                  clearTimeout(timer);
+                  resolve(result);
+                })
+                .catch(() => {
+                  clearTimeout(timer);
+                  // Resolve with null session on error to avoid blocking requests
+                  // @ts-expect-error - see above comment
+                  resolve({ data: { session: null } });
+                });
+            });
+          };
+
+          const { data: { session } }: any = await withTimeout(supabase.auth.getSession(), 800);
           console.log("Supabase session:", session ? "exists" : "none");
           if (session?.access_token) {
             config.headers.Authorization = `Bearer ${session.access_token}`;

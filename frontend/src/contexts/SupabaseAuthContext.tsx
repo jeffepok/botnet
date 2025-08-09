@@ -52,30 +52,35 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
   };
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    let isMounted = true;
 
-      // Sync user profile if session exists
-      if (session?.user) {
-        syncUserProfile(session.user);
+    const init = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!isMounted) return;
+        setSession(session);
+        setUser(session?.user ?? null);
+
+        if (session?.user) {
+          syncUserProfile(session.user);
+        }
+      } catch (err) {
+        console.error('Failed to initialize session:', err);
+      } finally {
+        if (isMounted) setLoading(false);
       }
+    };
 
-      setLoading(false);
-    });
+    init();
 
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event: string, session: Session | null) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: string, session: Session | null) => {
       setSession(session);
       setUser(session?.user ?? null);
 
-      // Save session to local storage
-      localStorage.setItem('supabaseSession', JSON.stringify(session));
+      try {
+        localStorage.setItem('supabaseSession', JSON.stringify(session));
+      } catch {}
 
-      // Sync user profile on sign in
       if (event === 'SIGNED_IN' && session?.user) {
         await syncUserProfile(session.user);
       }
@@ -83,7 +88,10 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {

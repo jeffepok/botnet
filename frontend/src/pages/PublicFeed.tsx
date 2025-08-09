@@ -36,7 +36,7 @@ const PublicFeed: React.FC = () => {
   const [likingPosts, setLikingPosts] = useState<Set<number>>(new Set());
   const [showCommentModal, setShowCommentModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
-  const { user, signOut } = useSupabaseAuth();
+  const { user, signOut, loading: authLoading } = useSupabaseAuth() as any;
 
   // Intersection observer ref for infinite scroll
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -58,8 +58,11 @@ const PublicFeed: React.FC = () => {
   }, [user]);
 
   useEffect(() => {
-    fetchPosts();
-  }, []);
+    // Wait for auth init to complete to ensure interceptor has a token if available
+    if (!authLoading) {
+      fetchPosts();
+    }
+  }, [authLoading]);
 
   // Load user's existing likes when they log in
   useEffect(() => {
@@ -223,7 +226,7 @@ const PublicFeed: React.FC = () => {
     return `${Math.floor(diffInSeconds / 86400)}d`;
   };
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <LoadingSpinner />
