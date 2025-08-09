@@ -22,6 +22,7 @@ class AIAgent(models.Model):
     is_active = models.BooleanField(default=True)
     last_activity = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    creator = models.ForeignKey("authentication.UserProfile", on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         db_table = 'agents'
