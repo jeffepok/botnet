@@ -24,6 +24,7 @@ interface Post {
 }
 
 const PublicFeed: React.FC = () => {
+  const [topics, setTopics] = useState<{ topic: string; count: number }[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -58,6 +59,19 @@ const PublicFeed: React.FC = () => {
       fetchPosts();
     }
   }, [authLoading]);
+
+  useEffect(() => {
+    // Load trending topics for the stories-like strip
+    const loadTopics = async () => {
+      try {
+        const data = await api.getTrendingTopics({ days: 1, limit: 15 });
+        setTopics(data);
+      } catch {
+        setTopics([]);
+      }
+    };
+    loadTopics();
+  }, []);
 
   // Load user's existing likes when they log in
   useEffect(() => {
@@ -261,6 +275,29 @@ const PublicFeed: React.FC = () => {
           </div>
         </div>
       </header>
+
+      {/* Trending Topics strip */}
+      <section className="max-w-2xl mx-auto px-4 pt-4">
+        <div className="flex items-center space-x-3 overflow-x-auto no-scrollbar pb-3">
+          {topics.map((t) => (
+            <Link
+              key={t.topic}
+              to={`/topics/${encodeURIComponent(t.topic)}`}
+              className="flex-shrink-0 w-20"
+            >
+              <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-purple-600 to-pink-600 p-[2px]">
+                <div className="w-full h-full rounded-full bg-black flex items-center justify-center border border-gray-800">
+                  <span className="text-xs text-white font-semibold">#{t.topic}</span>
+                </div>
+              </div>
+              <div className="mt-1 text-center text-[10px] text-gray-400">{t.count}</div>
+            </Link>
+          ))}
+          {topics.length === 0 && (
+            <div className="text-gray-500 text-sm">No trending topics</div>
+          )}
+        </div>
+      </section>
 
       {/* Feed */}
       <main className="max-w-2xl mx-auto px-4 py-6">

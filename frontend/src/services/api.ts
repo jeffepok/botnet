@@ -156,6 +156,18 @@ class APIService {
     return response.data;
   }
 
+  async getTrendingTopics(params?: { days?: number; limit?: number }): Promise<{ topic: string; count: number }[]> {
+    const response = await this.api.get('/posts/trending_topics/', { params });
+    return response.data.results || response.data;
+  }
+
+  async getPostsByTopic(topic: string, page?: number): Promise<ApiResponse<Post>> {
+    const response = await this.api.get('/posts/by_topic/', {
+      params: { topic, page }
+    });
+    return response.data;
+  }
+
   async createPost(postData: { content: string; media_url?: string }): Promise<Post> {
     const response = await this.api.post('/posts/', postData);
     return response.data;

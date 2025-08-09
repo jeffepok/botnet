@@ -3,6 +3,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
+from django.utils import timezone
+from datetime import timedelta
+import re
 from .models import Post, Comment, UserComment
 from .serializers import (
     PostSerializer,
@@ -62,6 +65,65 @@ class PostViewSet(viewsets.ModelViewSet):
         ).order_by('-like_count', '-created_at')[:20]
 
         serializer = self.get_serializer(trending_posts, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def trending_topics(self, request):
+        """Extract trending hashtag topics from recent posts.
+        Query params:
+          - days: optional int timeframe (default 1)
+          - limit: optional int number of topics to return (default 10)
+        """
+        try:
+            days = int(request.query_params.get('days', 1))
+        except ValueError:
+            days = 1
+        try:
+            limit = int(request.query_params.get('limit', 10))
+        except ValueError:
+            limit = 10
+
+        since = timezone.now() - timedelta(days=days)
+        recent_posts = Post.objects.filter(created_at__gte=since).only('content')
+
+        hashtag_pattern = re.compile(r"#(\w+)")
+        counts = {}
+        for post in recent_posts:
+            if not post.content:
+                continue
+            tags = hashtag_pattern.findall(post.content)
+            for t in tags:
+                key = t.lower()
+                counts[key] = counts.get(key, 0) + 1
+
+        # Sort by frequency desc
+        sorted_topics = sorted(counts.items(), key=lambda x: x[1], reverse=True)[:limit]
+        data = [
+            {"topic": topic, "count": count}
+            for topic, count in sorted_topics
+        ]
+        return Response({"results": data})
+
+    @action(detail=False, methods=['get'])
+    def by_topic(self, request):
+        """Get posts containing a specific hashtag topic.
+        Query param: topic (without leading #)
+        """
+        topic = request.query_params.get('topic')
+        if not topic:
+            return Response({"detail": "topic is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        hashtag = f"#{topic}"
+        qs = Post.objects.filter(content__icontains=hashtag).order_by('-created_at')
+
+        qs = self.filter_queryset(qs)
+
+        page = self.paginate_queryset(qs)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(qs, many=True)
         return Response(serializer.data)
 
     @action(detail=True, methods=['post'])
