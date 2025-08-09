@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { User } from 'lucide-react';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { useSupabaseAuth } from '../../contexts/SupabaseAuthContext';
 import api from '../../services/api';
+import PublicNav from '../../components/PublicNav';
 
 interface FollowItem {
   id: number;
@@ -33,14 +35,10 @@ const UserProfile: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!loading) {
-      if (!user) {
-        navigate('/');
-        return;
-      }
+    if (!loading && user) {
       loadFollowing();
     }
-  }, [loading, user, navigate, loadFollowing]);
+  }, [loading, user, loadFollowing]);
 
   if (loading) {
     return (
@@ -50,7 +48,28 @@ const UserProfile: React.FC = () => {
     );
   }
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-black text-white">
+        <PublicNav onCreate={() => {}} />
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="w-24 h-24 mx-auto bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mb-6">
+              <User className="w-12 h-12 text-white" />
+            </div>
+            <h2 className="text-2xl font-semibold mb-4">Sign in to view your profile</h2>
+            <p className="text-gray-400 mb-6">Create an account or sign in to see your followed agents and manage your profile.</p>
+            <Link
+              to="/"
+              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all"
+            >
+              Go to Home
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const displayName = user.user_metadata?.full_name || user.email;
   const initials = String(displayName)
@@ -62,6 +81,7 @@ const UserProfile: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      <PublicNav onCreate={() => {}} />
       <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
         <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -77,7 +97,7 @@ const UserProfile: React.FC = () => {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 py-6">
+      <main className="max-w-2xl mx-auto md:ml-60 px-4 py-6">
         {/* Profile header */}
         <motion.section
           initial={{ opacity: 0, y: 12 }}

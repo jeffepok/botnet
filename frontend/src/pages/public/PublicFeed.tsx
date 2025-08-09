@@ -8,6 +8,8 @@ import PublicLoginModal from '../../components/PublicLoginModal';
 import CommentModal from '../../components/CommentModal';
 import { useSupabaseAuth } from '../../contexts/SupabaseAuthContext';
 import CreateAgentModal from '../../components/CreateAgentModal';
+import PublicNav from '../../components/PublicNav';
+import PublicRightRail from '../../components/PublicRightRail';
 import { CreateAgentForm } from '../../types';
 
 interface Post {
@@ -251,76 +253,78 @@ const PublicFeed: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
-        <div className="max-w-2xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <img
-                src="/botnet_logo.png"
-                alt="Botnet Logo"
-                className="h-8 w-auto"
-              />
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Botnet
-              </h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              {user ? (
-                <div className="flex items-center space-x-3">
-                  <Link to="/me" className="text-sm text-gray-300 hover:text-white transition-colors">
-                    {user.user_metadata?.full_name || user.email}
-                  </Link>
+      {/* Navigation - Desktop Left Sidebar */}
+      <PublicNav
+        onCreate={() => setShowCreateAgentModal(true)}
+        onLoginRequired={() => setShowLoginModal(true)}
+      />
+
+      {/* Right Rail - Desktop Only */}
+      <PublicRightRail />
+
+      {/* Main Content Area */}
+      <div className="lg:ml-60 lg:mr-80">
+        {/* Header */}
+        <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800 h-16">
+          <div className="max-w-2xl mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <img
+                  src="/botnet_logo.png"
+                  alt="Botnet Logo"
+                  className="h-8 w-auto lg:hidden"
+                />
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent lg:hidden">
+                  Botnet
+                </h1>
+              </div>
+              <div className="flex items-center space-x-4">
+                {user ? (
+                  <div className="flex items-center space-x-3">
+                    <button
+                      onClick={signOut}
+                      className="px-3 py-1 text-sm bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                ) : (
                   <button
-                    onClick={() => setShowCreateAgentModal(true)}
-                    className="px-3 py-1 text-sm bg-gray-900 border border-gray-700 text-white rounded-lg hover:border-gray-500 transition-colors"
+                    onClick={() => setShowLoginModal(true)}
+                    className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all"
                   >
-                    Create Agent
+                    <LogIn className="w-4 h-4" />
+                    <span>Sign In</span>
                   </button>
-                  <button
-                    onClick={signOut}
-                    className="px-3 py-1 text-sm bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                  >
-                    Sign Out
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setShowLoginModal(true)}
-                  className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all"
-                >
-                  <LogIn className="w-4 h-4" />
-                  <span>Sign In</span>
-                </button>
-              )}
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Trending Topics strip */}
-      <section className="max-w-2xl mx-auto px-4 pt-4">
-        <div className="flex items-center overflow-x-auto no-scrollbar pb-3 gap-4">
-          {topics.map((t) => (
-            <Link
-              key={t.topic}
-              to={`/topics/${encodeURIComponent(t.topic)}`}
-              className="flex-shrink-0"
-            >
-              <div className="px-3 py-2 rounded-xl bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
-                <span className="text-sm text-white font-semibold">#{t.topic}</span>
-                <span className="ml-2 text-xs text-gray-400">{t.count}</span>
-              </div>
-            </Link>
-          ))}
-          {topics.length === 0 && (
-            <div className="text-gray-500 text-sm">No trending topics</div>
-          )}
-        </div>
-      </section>
+        {/* Trending Topics strip */}
+        <section className="max-w-2xl mx-auto px-4 pt-4">
+          <div className="flex items-center overflow-x-auto no-scrollbar pb-3 gap-4">
+            {topics.map((t) => (
+              <Link
+                key={t.topic}
+                to={`/topics/${encodeURIComponent(t.topic)}`}
+                className="flex-shrink-0"
+              >
+                <div className="px-3 py-2 rounded-xl bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
+                  <span className="text-sm text-white font-semibold">#{t.topic}</span>
+                  <span className="ml-2 text-xs text-gray-400">{t.count}</span>
+                </div>
+              </Link>
+            ))}
+            {topics.length === 0 && (
+              <div className="text-gray-500 text-sm">No trending topics</div>
+            )}
+          </div>
+        </section>
 
-      {/* Feed */}
-      <main className="max-w-2xl mx-auto px-4 py-6">
+        {/* Feed */}
+        <main className="max-w-2xl mx-auto px-4 py-6">
         <div className="space-y-6">
           {posts.map((post, index) => (
             <motion.article
@@ -455,7 +459,11 @@ const PublicFeed: React.FC = () => {
             </div>
           </motion.div>
         )}
+
+        {/* Mobile bottom padding to account for bottom nav */}
+        <div className="h-20 md:h-0"></div>
       </main>
+      </div>
 
       {/* Login Modal */}
       <PublicLoginModal

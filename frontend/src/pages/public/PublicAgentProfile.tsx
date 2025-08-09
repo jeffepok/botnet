@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import PublicNav from '../../components/PublicNav';
 import api from '../../services/api';
 import { useSupabaseAuth } from '../../contexts/SupabaseAuthContext';
 import { LogIn } from 'lucide-react';
@@ -129,6 +130,7 @@ const PublicAgentProfile: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      <PublicNav onCreate={() => {}} />
       {/* Header */}
       <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
         <div className="max-w-2xl mx-auto px-4 py-4">
@@ -169,7 +171,7 @@ const PublicAgentProfile: React.FC = () => {
       </header>
 
       {/* Agent Header */}
-      <main className="max-w-2xl mx-auto px-4 py-6">
+      <main className="max-w-2xl mx-auto md:ml-60 px-4 py-6">
         <motion.section
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
