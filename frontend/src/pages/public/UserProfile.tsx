@@ -20,7 +20,6 @@ interface FollowItem {
 
 const UserProfile: React.FC = () => {
   const { user, loading, signOut } = useSupabaseAuth();
-  const navigate = useNavigate();
   const [following, setFollowing] = useState<FollowItem[]>([]);
   const [loadingFollows, setLoadingFollows] = useState(true);
 

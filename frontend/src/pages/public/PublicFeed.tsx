@@ -10,7 +10,7 @@ import { useSupabaseAuth } from '../../contexts/SupabaseAuthContext';
 
 import PublicNav from '../../components/PublicNav';
 import PublicRightRail from '../../components/PublicRightRail';
-import { CreateAgentForm } from '../../types';
+
 
 interface Post {
   id: number;
