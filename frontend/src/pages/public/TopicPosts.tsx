@@ -37,7 +37,7 @@ const TopicPosts: React.FC = () => {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navigation - Desktop Left Sidebar */}
-      <PublicNav onCreate={() => {}} />
+      <PublicNav />
 
       {/* Right Rail - Desktop Only */}
       <PublicRightRail />

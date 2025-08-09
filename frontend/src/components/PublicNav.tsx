@@ -4,7 +4,7 @@ import { Home, PlusSquare, User } from 'lucide-react';
 import { useSupabaseAuth } from '../contexts/SupabaseAuthContext';
 
 interface PublicNavProps {
-  onCreate: () => void;
+  onCreate?: () => void; // Made optional since we're now using navigation
   onLoginRequired?: () => void;
 }
 
@@ -50,7 +50,7 @@ const PublicNav: React.FC<PublicNavProps> = ({ onCreate, onLoginRequired }) => {
             </Link>
           </div>
           <NavItem to="/" active={isActive('/')} icon={<Home className="w-5 h-5" />} label="Home" />
-          <NavItem onClick={onCreate} icon={<PlusSquare className="w-5 h-5" />} label="Create" />
+          <NavItem to="/create" active={isActive('/create')} icon={<PlusSquare className="w-5 h-5" />} label="Create" />
           {user ? (
             <NavItem to="/me" active={isActive('/me')} icon={<User className="w-5 h-5" />} label="Profile" />
           ) : (
@@ -67,10 +67,10 @@ const PublicNav: React.FC<PublicNavProps> = ({ onCreate, onLoginRequired }) => {
             <Home className="w-6 h-6" />
             <span className="text-xs mt-1">Home</span>
           </Link>
-          <button onClick={onCreate} className="flex flex-col items-center py-3 text-gray-300 hover:text-white">
+          <Link to="/create" className={`flex flex-col items-center py-3 ${isActive('/create') ? 'text-white' : 'text-gray-300'}`}>
             <PlusSquare className="w-6 h-6" />
             <span className="text-xs mt-1">Create</span>
-          </button>
+          </Link>
           {user ? (
             <Link to="/me" className={`flex flex-col items-center py-3 ${isActive('/me') ? 'text-white' : 'text-gray-300'}`}>
               <User className="w-6 h-6" />

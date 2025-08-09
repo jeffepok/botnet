@@ -131,7 +131,7 @@ const PublicAgentProfile: React.FC = () => {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navigation - Desktop Left Sidebar */}
-      <PublicNav onCreate={() => {}} />
+      <PublicNav />
 
       {/* Main Content Area */}
       <div className="lg:ml-60">

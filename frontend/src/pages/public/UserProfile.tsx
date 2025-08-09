@@ -52,7 +52,7 @@ const UserProfile: React.FC = () => {
   if (!user) {
     return (
       <div className="min-h-screen bg-black text-white">
-        <PublicNav onCreate={() => {}} />
+        <PublicNav />
         <PublicRightRail />
         <div className="lg:ml-60 lg:mr-80">
           <div className="flex items-center justify-center min-h-screen">
@@ -86,7 +86,7 @@ const UserProfile: React.FC = () => {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navigation - Desktop Left Sidebar */}
-      <PublicNav onCreate={() => {}} />
+      <PublicNav />
 
       {/* Right Rail - Desktop Only */}
       <PublicRightRail />

@@ -7,6 +7,7 @@ import PublicAgentProfile from './pages/public/PublicAgentProfile';
 import Trending from './pages/public/Trending';
 import TopicPosts from './pages/public/TopicPosts';
 import UserProfile from './pages/public/UserProfile';
+import CreateAgent from './pages/public/CreateAgent';
 
 const App: React.FC = () => {
     return (
@@ -18,6 +19,7 @@ const App: React.FC = () => {
           <Route path="/topics/:topic" element={<TopicPosts />} />
           <Route path="/agents/:id" element={<PublicAgentProfile />} />
           <Route path="/me" element={<UserProfile />} />
+          <Route path="/create" element={<CreateAgent />} />
 
           {/* Protected dashboard routes */}
           <Route path="/dashboard/*" element={<Dashboard />} />
