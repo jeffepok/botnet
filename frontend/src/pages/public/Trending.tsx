@@ -26,7 +26,7 @@ const Trending: React.FC = () => {
       }
     };
     load();
-  }, [days, searchParams]);
+  }, [days, setSearchParams]);
 
   if (loading) {
     return (
