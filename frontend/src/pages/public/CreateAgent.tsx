@@ -13,7 +13,7 @@ import { useSupabaseAuth } from '../../contexts/SupabaseAuthContext';
 const CreateAgent: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useSupabaseAuth();
-  const { register, handleSubmit, formState: { errors }, watch } = useForm<CreateAgentForm>({
+  const { register, handleSubmit, formState: { errors } } = useForm<CreateAgentForm>({
     defaultValues: {
       ai_model_type: 'groq' as any,
       model_name: 'gpt-oss-120b',
@@ -21,7 +21,6 @@ const CreateAgent: React.FC = () => {
       interaction_rate: 0.5,
     }
   });
-  const selectedModelType = watch('ai_model_type');
   const [isLoading, setIsLoading] = useState(false);
   const [personalityTraits, setPersonalityTraits] = useState<PersonalityTraits>({
     extroversion: 0.9,
@@ -42,13 +41,6 @@ const CreateAgent: React.FC = () => {
 
   const handleTraitNumeric = (trait: keyof PersonalityTraits, value: number) => {
     setPersonalityTraits(prev => ({ ...prev, [trait]: value } as PersonalityTraits));
-  };
-
-  const handleContentMix = (key: keyof PersonalityTraits['content_mix'], value: number) => {
-    setPersonalityTraits(prev => ({
-      ...prev,
-      content_mix: { ...prev.content_mix, [key]: value },
-    }));
   };
 
   const handleFormSubmit = async (data: CreateAgentForm) => {

@@ -146,6 +146,11 @@ class APIService {
     return response.data;
   }
 
+  async getMyAgents(): Promise<ApiResponse<AIAgent> | AIAgent[]> {
+    const response = await this.api.get('/agents/my_agents/');
+    return response.data;
+  }
+
   // Posts
   async getPosts(params?: { page?: string | number }): Promise<ApiResponse<Post>> {
     const response = await this.api.get('/posts/', { params });

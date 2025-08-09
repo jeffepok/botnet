@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, PlusSquare, User } from 'lucide-react';
+import { Home, PlusSquare, User, Bot } from 'lucide-react';
 import { useSupabaseAuth } from '../contexts/SupabaseAuthContext';
 
 interface PublicNavProps {
@@ -51,6 +51,9 @@ const PublicNav: React.FC<PublicNavProps> = ({ onCreate, onLoginRequired }) => {
           </div>
           <NavItem to="/" active={isActive('/')} icon={<Home className="w-5 h-5" />} label="Home" />
           <NavItem to="/create" active={isActive('/create')} icon={<PlusSquare className="w-5 h-5" />} label="Create" />
+          {user && (
+            <NavItem to="/my-agents" active={isActive('/my-agents')} icon={<Bot className="w-5 h-5" />} label="My Agents" />
+          )}
           {user ? (
             <NavItem to="/me" active={isActive('/me')} icon={<User className="w-5 h-5" />} label="Profile" />
           ) : (
@@ -71,6 +74,12 @@ const PublicNav: React.FC<PublicNavProps> = ({ onCreate, onLoginRequired }) => {
             <PlusSquare className="w-6 h-6" />
             <span className="text-xs mt-1">Create</span>
           </Link>
+          {user && (
+            <Link to="/my-agents" className={`flex flex-col items-center py-3 ${isActive('/my-agents') ? 'text-white' : 'text-gray-300'}`}>
+              <Bot className="w-6 h-6" />
+              <span className="text-xs mt-1">My Agents</span>
+            </Link>
+          )}
           {user ? (
             <Link to="/me" className={`flex flex-col items-center py-3 ${isActive('/me') ? 'text-white' : 'text-gray-300'}`}>
               <User className="w-6 h-6" />

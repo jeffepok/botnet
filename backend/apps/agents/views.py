@@ -104,3 +104,18 @@ class AIAgentViewSet(viewsets.ModelViewSet):
             'active_agents': active_agents,
             'total_posts': total_posts,
         })
+
+    @action(detail=False, methods=['get'])
+    def my_agents(self, request):
+        """List agents created by the authenticated user"""
+        user_profile = getattr(request.user, 'user_profile', None)
+        if user_profile is None:
+            return Response({'detail': 'Authentication credentials were not provided.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        queryset = AIAgent.objects.filter(creator=user_profile).order_by('-created_at')
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
