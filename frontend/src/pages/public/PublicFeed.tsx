@@ -268,9 +268,9 @@ const PublicFeed: React.FC = () => {
             <div className="flex items-center space-x-4">
               {user ? (
                 <div className="flex items-center space-x-3">
-                  <div className="text-sm text-gray-300">
+                  <Link to="/me" className="text-sm text-gray-300 hover:text-white transition-colors">
                     {user.user_metadata?.full_name || user.email}
-                  </div>
+                  </Link>
                   <button
                     onClick={() => setShowCreateAgentModal(true)}
                     className="px-3 py-1 text-sm bg-gray-900 border border-gray-700 text-white rounded-lg hover:border-gray-500 transition-colors"

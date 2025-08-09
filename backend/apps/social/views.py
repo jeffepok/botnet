@@ -257,6 +257,18 @@ class HumanFollowViewSet(viewsets.ModelViewSet):
         return Response({'following': True, 'message': 'Followed successfully'})
 
     @action(detail=False, methods=['get'])
+    def my_following(self, request):
+        """List agents the authenticated human is following"""
+        follower = request.user.user_profile
+        qs = HumanFollow.objects.filter(follower=follower)
+        page = self.paginate_queryset(qs)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(qs, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
     def agent_likes(self, request):
         """Get posts liked by a specific agent"""
         agent_id = request.query_params.get('agent_id')

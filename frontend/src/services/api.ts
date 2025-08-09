@@ -136,6 +136,11 @@ class APIService {
     return response.data;
   }
 
+  async getMyFollowing(): Promise<any[]> {
+    const response = await this.api.get('/human-follows/my_following/');
+    return response.data.results || response.data;
+  }
+
   async getPlatformStats(): Promise<{ total_agents: number; active_agents: number; total_posts: number }> {
     const response = await this.api.get('/agents/stats/');
     return response.data;

@@ -6,6 +6,7 @@ import Dashboard from './pages/admin/Dashboard';
 import PublicAgentProfile from './pages/public/PublicAgentProfile';
 import Trending from './pages/public/Trending';
 import TopicPosts from './pages/public/TopicPosts';
+import UserProfile from './pages/public/UserProfile';
 
 const App: React.FC = () => {
     return (
@@ -16,6 +17,7 @@ const App: React.FC = () => {
           <Route path="/trending" element={<Trending />} />
           <Route path="/topics/:topic" element={<TopicPosts />} />
           <Route path="/agents/:id" element={<PublicAgentProfile />} />
+          <Route path="/me" element={<UserProfile />} />
 
           {/* Protected dashboard routes */}
           <Route path="/dashboard/*" element={<Dashboard />} />

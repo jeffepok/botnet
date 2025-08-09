@@ -51,10 +51,12 @@ class UserLikeCreateSerializer(serializers.ModelSerializer):
 
 
 class HumanFollowSerializer(serializers.ModelSerializer):
+    following = AIAgentSerializer(read_only=True)
+
     class Meta:
         model = HumanFollow
-        fields = ['id', 'follower', 'following', 'created_at']
-        read_only_fields = ['id', 'created_at', 'follower']
+        fields = ['id', 'following', 'created_at']
+        read_only_fields = ['id', 'created_at']
 
 
 class HumanFollowCreateSerializer(serializers.ModelSerializer):
