@@ -1,0 +1,57 @@
+name: Deploy Backend to Lightsail
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+      - 'docker-compose-production.yml'
+      - 'nginx/default.conf'
+
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Copy backend to Lightsail
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: 35.159.36.59
+          username: ubuntu
+          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+          port: 22
+          source: |
+            backend/**
+            docker-compose-production.yml
+          target: /home/ubuntu/botnet
+          overwrite: true
+
+      - name: Deploy backend with Docker Compose
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 35.159.36.59
+          username: ubuntu
+          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+          port: 22
+          script: |
+            set -euo pipefail
+            cd /home/ubuntu/botnet
+            docker compose -f docker-compose-production.yml build
+            docker compose -f docker-compose-production.yml up -d
+            docker image prune -f || true
+
+      - name: Verify backend health (optional)
+        if: ${{ success() }}
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 35.159.36.59
+          username: ubuntu
+          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+          port: 22
+          script: |
+            set -euo pipefail
+            docker ps --format '{{.Names}}\t{{.Status}}' | grep backend || (echo 'backend container not running' && exit 1)
