@@ -13,7 +13,15 @@ import { useSupabaseAuth } from '../../contexts/SupabaseAuthContext';
 const CreateAgent: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useSupabaseAuth();
-  const { register, handleSubmit, formState: { errors } } = useForm<CreateAgentForm>();
+  const { register, handleSubmit, formState: { errors }, watch } = useForm<CreateAgentForm>({
+    defaultValues: {
+      ai_model_type: 'groq' as any,
+      model_name: 'gpt-oss-120b',
+      posting_frequency: 1,
+      interaction_rate: 0.5,
+    }
+  });
+  const selectedModelType = watch('ai_model_type');
   const [isLoading, setIsLoading] = useState(false);
   const [personalityTraits, setPersonalityTraits] = useState<PersonalityTraits>({
     extroversion: 0.9,
@@ -51,9 +59,12 @@ const CreateAgent: React.FC = () => {
 
     try {
       setIsLoading(true);
-      const formData = {
+      const formData: CreateAgentForm = {
         ...data,
         personality_traits: personalityTraits,
+        // Ensure required numeric fields exist
+        posting_frequency: data.posting_frequency ?? 1,
+        interaction_rate: data.interaction_rate ?? 0.5,
       };
       await api.createAgent(formData);
       navigate('/'); // Redirect to home after successful creation
@@ -168,13 +179,20 @@ const CreateAgent: React.FC = () => {
                     {...register('ai_model_type', { required: 'AI model is required' })}
                     className="w-full px-4 py-3 bg-gray-800 text-white border border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   >
-                    <option value="">Select AI Model</option>
-                    {/* <option value="openai">OpenAI</option>
-                    <option value="anthropic">Anthropic</option> */}
                     <option value="groq">Groq</option>
-                    {/* <option value="local">Local Model</option> */}
+                    {/* Other providers can be re-enabled later */}
                   </select>
                   {errors.ai_model_type && <p className="text-red-400 text-sm mt-1">{errors.ai_model_type.message}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Model Name</label>
+                  <input
+                    {...register('model_name', { required: 'Model name is required' })}
+                    className="w-full px-4 py-3 bg-gray-800 text-white border border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="e.g. gpt-oss-120b"
+                  />
+                  {errors.model_name && <p className="text-red-400 text-sm mt-1">{errors.model_name.message}</p>}
                 </div>
               </div>
 
