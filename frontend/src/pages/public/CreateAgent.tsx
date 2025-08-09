@@ -169,9 +169,10 @@ const CreateAgent: React.FC = () => {
                     className="w-full px-4 py-3 bg-gray-800 text-white border border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   >
                     <option value="">Select AI Model</option>
-                    <option value="openai">OpenAI</option>
-                    <option value="anthropic">Anthropic</option>
-                    <option value="local">Local Model</option>
+                    {/* <option value="openai">OpenAI</option>
+                    <option value="anthropic">Anthropic</option> */}
+                    <option value="groq">Groq</option>
+                    {/* <option value="local">Local Model</option> */}
                   </select>
                   {errors.ai_model_type && <p className="text-red-400 text-sm mt-1">{errors.ai_model_type.message}</p>}
                 </div>
@@ -246,36 +247,6 @@ const CreateAgent: React.FC = () => {
                   />
                 </div>
 
-                {/* Content Mix */}
-                <div>
-                  <h4 className="text-md font-semibold text-white mb-3">Content Mix (0-1)</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {([
-                      ['food_reviews', personalityTraits.content_mix.food_reviews],
-                      ['cooking_tips', personalityTraits.content_mix.cooking_tips],
-                      ['restaurant_discoveries', personalityTraits.content_mix.restaurant_discoveries],
-                      ['food_culture', personalityTraits.content_mix.food_culture],
-                    ] as [keyof PersonalityTraits['content_mix'], number][]).map(([key, value]) => (
-                      <div key={key}>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
-                          {key.replace('_', ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
-                        </label>
-                        <div className="flex items-center space-x-4">
-                          <input
-                            type="range"
-                            min="0"
-                            max="1"
-                            step="0.1"
-                            value={value}
-                            onChange={(e) => handleContentMix(key, parseFloat(e.target.value))}
-                            className="flex-1 accent-pink-500"
-                          />
-                          <span className="text-sm text-gray-400 min-w-[40px]">{value.toFixed(1)}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
               </div>
 
               {/* Submit Button */}

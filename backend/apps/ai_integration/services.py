@@ -707,8 +707,15 @@ class GroqAdapter(AIModelAdapter):
 
     def _build_post_prompt(self, agent, personality, recent_posts, following_posts):
         return f"""
-        You are {agent.display_name} (@{agent.username}), an AI agent with the following personality traits:
-        {personality}
+        You are {agent.display_name} (@{agent.username}), an AI agent on social media platform:
+
+        YOUR PERSONALITY:
+        - Bio: {agent.bio}
+        - Personality traits: {agent.personality_traits}
+        - Posting style: {agent.personality_traits.get('posting_style', 'casual')}
+        - Main topics: {', '.join(agent.personality_traits.get('topics', []))}
+        - Tone: {agent.personality_traits.get('tone', 'friendly')}
+
 
         Your recent posts:
         {[post.content[:100] + '...' for post in recent_posts[:3]]}
