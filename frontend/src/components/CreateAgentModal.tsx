@@ -12,17 +12,30 @@ interface CreateAgentModalProps {
 const CreateAgentModal: React.FC<CreateAgentModalProps> = ({ onClose, onSubmit, isLoading }) => {
   const { register, handleSubmit, watch, formState: { errors } } = useForm<CreateAgentForm>();
   const [personalityTraits, setPersonalityTraits] = useState<PersonalityTraits>({
-    extroversion: 50,
-    creativity: 50,
-    humor: 50,
-    intelligence: 50,
-    empathy: 50
+    extroversion: 0.9,
+    openness: 0.8,
+    conscientiousness: 0.6,
+    agreeableness: 0.9,
+    neuroticism: 0.2,
+    posting_style: 'enthusiastic_storyteller',
+    topics: ['food', 'restaurants', 'cooking', 'local_culture'],
+    tone: 'friendly_expert',
+    content_mix: {
+      food_reviews: 0.5,
+      cooking_tips: 0.2,
+      restaurant_discoveries: 0.2,
+      food_culture: 0.1,
+    },
   });
 
-  const handlePersonalityChange = (trait: keyof PersonalityTraits, value: number) => {
+  const handleTraitNumeric = (trait: keyof PersonalityTraits, value: number) => {
+    setPersonalityTraits(prev => ({ ...prev, [trait]: value } as PersonalityTraits));
+  };
+
+  const handleContentMix = (key: keyof PersonalityTraits['content_mix'], value: number) => {
     setPersonalityTraits(prev => ({
       ...prev,
-      [trait]: value
+      content_mix: { ...prev.content_mix, [key]: value },
     }));
   };
 
@@ -180,24 +193,87 @@ const CreateAgentModal: React.FC<CreateAgentModalProps> = ({ onClose, onSubmit, 
           <div>
             <h3 className="text-lg font-medium text-gray-900 mb-4">Personality Traits</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Object.entries(personalityTraits).map(([trait, value]) => (
+              {([
+                ['extroversion', personalityTraits.extroversion],
+                ['openness', personalityTraits.openness],
+                ['conscientiousness', personalityTraits.conscientiousness],
+                ['agreeableness', personalityTraits.agreeableness],
+                ['neuroticism', personalityTraits.neuroticism],
+              ] as [keyof PersonalityTraits, number][]).map(([trait, value]) => (
                 <div key={trait}>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {trait.charAt(0).toUpperCase() + trait.slice(1)}
+                    {String(trait).charAt(0).toUpperCase() + String(trait).slice(1)} (0-1)
                   </label>
                   <div className="flex items-center space-x-4">
                     <input
                       type="range"
                       min="0"
-                      max="100"
+                      max="1"
+                      step="0.1"
                       value={value}
-                      onChange={(e) => handlePersonalityChange(trait as keyof PersonalityTraits, parseInt(e.target.value))}
+                      onChange={(e) => handleTraitNumeric(trait, parseFloat(e.target.value))}
                       className="flex-1"
                     />
-                    <span className="text-sm text-gray-600 min-w-[40px]">{value}</span>
+                    <span className="text-sm text-gray-600 min-w-[40px]">{value.toFixed(1)}</span>
                   </div>
                 </div>
               ))}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Posting Style</label>
+                <input
+                  value={personalityTraits.posting_style}
+                  onChange={(e) => setPersonalityTraits(prev => ({ ...prev, posting_style: e.target.value }))}
+                  className="input"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Tone</label>
+                <input
+                  value={personalityTraits.tone}
+                  onChange={(e) => setPersonalityTraits(prev => ({ ...prev, tone: e.target.value }))}
+                  className="input"
+                />
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Topics (comma-separated)</label>
+              <input
+                value={personalityTraits.topics.join(', ')}
+                onChange={(e) => setPersonalityTraits(prev => ({ ...prev, topics: e.target.value.split(',').map(t => t.trim()).filter(Boolean) }))}
+                className="input"
+              />
+            </div>
+
+            <div className="mt-6">
+              <h4 className="text-md font-medium text-gray-900 mb-2">Content Mix (0-1)</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {([
+                  ['food_reviews', personalityTraits.content_mix.food_reviews],
+                  ['cooking_tips', personalityTraits.content_mix.cooking_tips],
+                  ['restaurant_discoveries', personalityTraits.content_mix.restaurant_discoveries],
+                  ['food_culture', personalityTraits.content_mix.food_culture],
+                ] as [keyof PersonalityTraits['content_mix'], number][]).map(([key, value]) => (
+                  <div key={key}>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{key.replace('_', ' ')}</label>
+                    <div className="flex items-center space-x-4">
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        value={value}
+                        onChange={(e) => handleContentMix(key, parseFloat(e.target.value))}
+                        className="flex-1"
+                      />
+                      <span className="text-sm text-gray-600 min-w-[40px]">{value.toFixed(1)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 

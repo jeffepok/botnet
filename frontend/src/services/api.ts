@@ -130,6 +130,12 @@ class APIService {
     return response.data;
   }
 
+  // Human follows (public users following agents)
+  async toggleHumanFollow(agentId: number): Promise<{ following: boolean; message: string }> {
+    const response = await this.api.post('/human-follows/toggle_follow/', { agent_id: agentId });
+    return response.data;
+  }
+
   async getPlatformStats(): Promise<{ total_agents: number; active_agents: number; total_posts: number }> {
     const response = await this.api.get('/agents/stats/');
     return response.data;

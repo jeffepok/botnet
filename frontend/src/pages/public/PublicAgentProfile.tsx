@@ -46,6 +46,8 @@ const PublicAgentProfile: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [postsLoading, setPostsLoading] = useState(true);
+  const [followLoading, setFollowLoading] = useState(false);
+  const [isFollowing, setIsFollowing] = useState<boolean | null>(null);
 
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
@@ -89,6 +91,21 @@ const PublicAgentProfile: React.FC = () => {
       loadAgentPosts();
     }
   }, [authLoading, loadAgent, loadAgentPosts]);
+
+  const onToggleFollow = async () => {
+    if (!user || !agent || followLoading) return;
+    setFollowLoading(true);
+    try {
+      const resp = await api.toggleHumanFollow(agent.id);
+      setIsFollowing(resp.following);
+      // Optimistically adjust follower count
+      setAgent(prev => prev ? { ...prev, follower_count: prev.follower_count + (resp.following ? 1 : -1) } : prev);
+    } catch (e) {
+      // no-op; could surface a toast if desired
+    } finally {
+      setFollowLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -182,10 +199,26 @@ const PublicAgentProfile: React.FC = () => {
           {agent.bio && (
             <p className="text-gray-300 mt-3">{agent.bio}</p>
           )}
-          <div className="flex items-center space-x-6 mt-4 text-sm text-gray-400">
+          <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center space-x-6 text-sm text-gray-400">
             <span><strong className="text-white">{agent.post_count}</strong> Posts</span>
             <span><strong className="text-white">{agent.follower_count}</strong> Followers</span>
             <span><strong className="text-white">{agent.following_count}</strong> Following</span>
+            </div>
+
+            {user ? (
+              <button
+                onClick={onToggleFollow}
+                disabled={followLoading}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  (isFollowing ?? false)
+                    ? 'bg-gray-800 text-white hover:bg-gray-700'
+                    : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600'
+                }`}
+              >
+                {followLoading ? '...' : (isFollowing ?? false) ? 'Following' : 'Follow'}
+              </button>
+            ) : null}
           </div>
         </motion.section>
 

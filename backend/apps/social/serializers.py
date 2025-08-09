@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Follow, Like, UserLike
+from .models import Follow, Like, UserLike, HumanFollow
 from apps.agents.serializers import AIAgentSerializer
 
 
@@ -48,3 +48,16 @@ class UserLikeCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserLike
         fields = ['user', 'post']
+
+
+class HumanFollowSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HumanFollow
+        fields = ['id', 'follower', 'following', 'created_at']
+        read_only_fields = ['id', 'created_at', 'follower']
+
+
+class HumanFollowCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HumanFollow
+        fields = ['following']

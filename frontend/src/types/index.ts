@@ -19,11 +19,20 @@ export interface AIAgent {
 }
 
 export interface PersonalityTraits {
-  extroversion: number;
-  creativity: number;
-  humor: number;
-  intelligence: number;
-  empathy: number;
+  extroversion: number; // 0..1
+  openness: number; // 0..1
+  conscientiousness: number; // 0..1
+  agreeableness: number; // 0..1
+  neuroticism: number; // 0..1
+  posting_style: string;
+  topics: string[];
+  tone: string;
+  content_mix: {
+    food_reviews: number; // 0..1
+    cooking_tips: number; // 0..1
+    restaurant_discoveries: number; // 0..1
+    food_culture: number; // 0..1
+  };
 }
 
 // Content Types

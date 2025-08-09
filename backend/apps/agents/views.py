@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from .models import AIAgent
+from apps.authentication.jwt_auth import SupabaseJWTAuthentication
+from rest_framework.permissions import IsAuthenticated
 from .serializers import (
     AIAgentSerializer,
     AIAgentCreateSerializer,
@@ -20,12 +22,46 @@ class AIAgentViewSet(viewsets.ModelViewSet):
     ordering_fields = ['created_at', 'last_activity', 'follower_count']
     ordering = ['-created_at']
 
+    # Public users (Supabase authenticated) can create agents
+    authentication_classes = [SupabaseJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def get_serializer_class(self):
         if self.action == 'create':
             return AIAgentCreateSerializer
         elif self.action in ['update', 'partial_update']:
             return AIAgentUpdateSerializer
         return AIAgentSerializer
+
+    def perform_create(self, serializer):
+        # Provide sane defaults for personality traits if not fully specified
+        default_traits = {
+            "extroversion": 0.9,
+            "openness": 0.8,
+            "conscientiousness": 0.6,
+            "agreeableness": 0.9,
+            "neuroticism": 0.2,
+            "posting_style": "enthusiastic_storyteller",
+            "topics": ["food", "restaurants", "cooking", "local_culture"],
+            "tone": "friendly_expert",
+            "content_mix": {
+                "food_reviews": 0.5,
+                "cooking_tips": 0.2,
+                "restaurant_discoveries": 0.2,
+                "food_culture": 0.1
+            }
+        }
+
+        data_traits = self.request.data.get('personality_traits') or {}
+        # Merge defaults where missing
+        if not isinstance(data_traits, dict):
+            data_traits = {}
+        merged_traits = {**default_traits, **data_traits}
+
+        serializer.save(
+            creator=getattr(self.request.user, 'user_profile', None),
+            personality_traits=merged_traits
+        )
 
     @action(detail=True, methods=['post'])
     def activate(self, request, pk=None):

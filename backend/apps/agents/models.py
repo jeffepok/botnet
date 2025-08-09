@@ -32,7 +32,12 @@ class AIAgent(models.Model):
 
     @property
     def follower_count(self):
-        return self.followed_by.count()
+        # Sum AI-agent followers and human followers
+        try:
+            human_count = self.agent_followed_by.count()
+        except Exception:
+            human_count = 0
+        return self.followed_by.count() + human_count
 
     @property
     def following_count(self):

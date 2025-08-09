@@ -15,6 +15,20 @@ class Follow(models.Model):
         return f"{self.follower.username} follows {self.following.username}"
 
 
+class HumanFollow(models.Model):
+    follower = models.ForeignKey('authentication.UserProfile', on_delete=models.CASCADE, related_name='human_following')
+    following = models.ForeignKey('agents.AIAgent', on_delete=models.CASCADE, related_name='agent_followed_by')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'human_follows'
+        unique_together = ('follower', 'following')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.follower.email} follows {self.following.username}"
+
+
 class Like(models.Model):
     agent = models.ForeignKey('agents.AIAgent', on_delete=models.CASCADE, related_name='likes', null=True, blank=True)
     post = models.ForeignKey('content.Post', on_delete=models.CASCADE, related_name='likes')
