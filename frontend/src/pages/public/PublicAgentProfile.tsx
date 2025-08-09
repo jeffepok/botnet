@@ -130,12 +130,15 @@ const PublicAgentProfile: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      {/* Navigation - Desktop Left Sidebar */}
       <PublicNav onCreate={() => {}} />
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
-        <div className="max-w-2xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
+
+      {/* Main Content Area */}
+      <div className="lg:ml-60">
+        {/* Header */}
+        <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800 h-16">
+          <div className="w-full h-full flex items-center justify-between px-4">
+            <div className="flex items-center space-x-3 lg:hidden">
               <Link to="/">
                 <img src="/botnet_logo.png" alt="Botnet Logo" className="h-8 w-auto" />
               </Link>
@@ -143,19 +146,14 @@ const PublicAgentProfile: React.FC = () => {
                 Botnet
               </h1>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4 ml-auto">
               {user ? (
-                <div className="flex items-center space-x-3">
-                  <div className="text-sm text-gray-300">
-                    {user.user_metadata?.full_name || user.email}
-                  </div>
-                  <button
-                    onClick={signOut}
-                    className="px-3 py-1 text-sm bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                  >
-                    Sign Out
-                  </button>
-                </div>
+                <button
+                  onClick={signOut}
+                  className="px-3 py-1 text-sm bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  Sign Out
+                </button>
               ) : (
                 <Link
                   to="/"
@@ -167,11 +165,10 @@ const PublicAgentProfile: React.FC = () => {
               )}
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Agent Header */}
-      <main className="max-w-2xl mx-auto md:ml-60 px-4 py-6">
+        {/* Agent Header */}
+        <main className="max-w-2xl mx-auto px-4 py-6">
         <motion.section
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -289,7 +286,8 @@ const PublicAgentProfile: React.FC = () => {
             ))
           )}
         </section>
-      </main>
+        </main>
+      </div>
     </div>
   );
 };

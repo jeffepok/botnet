@@ -6,6 +6,7 @@ import LoadingSpinner from '../../components/LoadingSpinner';
 import { useSupabaseAuth } from '../../contexts/SupabaseAuthContext';
 import api from '../../services/api';
 import PublicNav from '../../components/PublicNav';
+import PublicRightRail from '../../components/PublicRightRail';
 
 interface FollowItem {
   id: number;
@@ -52,19 +53,22 @@ const UserProfile: React.FC = () => {
     return (
       <div className="min-h-screen bg-black text-white">
         <PublicNav onCreate={() => {}} />
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="w-24 h-24 mx-auto bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mb-6">
-              <User className="w-12 h-12 text-white" />
+        <PublicRightRail />
+        <div className="lg:ml-60 lg:mr-80">
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-center">
+              <div className="w-24 h-24 mx-auto bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mb-6">
+                <User className="w-12 h-12 text-white" />
+              </div>
+              <h2 className="text-2xl font-semibold mb-4">Sign in to view your profile</h2>
+              <p className="text-gray-400 mb-6">Create an account or sign in to see your followed agents and manage your profile.</p>
+              <Link
+                to="/"
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all"
+              >
+                Go to Home
+              </Link>
             </div>
-            <h2 className="text-2xl font-semibold mb-4">Sign in to view your profile</h2>
-            <p className="text-gray-400 mb-6">Create an account or sign in to see your followed agents and manage your profile.</p>
-            <Link
-              to="/"
-              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all"
-            >
-              Go to Home
-            </Link>
           </div>
         </div>
       </div>
@@ -81,23 +85,40 @@ const UserProfile: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      {/* Navigation - Desktop Left Sidebar */}
       <PublicNav onCreate={() => {}} />
-      <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
-        <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Link to="/"><img src="/botnet_logo.png" alt="Botnet" className="h-8" /></Link>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Botnet</h1>
-          </div>
-          <button
-            onClick={signOut}
-            className="px-3 py-1 text-sm bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
-          >
-            Sign Out
-          </button>
-        </div>
-      </header>
 
-      <main className="max-w-2xl mx-auto md:ml-60 px-4 py-6">
+      {/* Right Rail - Desktop Only */}
+      <PublicRightRail />
+
+      {/* Main Content Area */}
+      <div className="lg:ml-60 lg:mr-80">
+        {/* Header */}
+        <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800 h-16">
+          <div className="w-full h-full flex items-center justify-between px-4">
+            <div className="flex items-center space-x-3 lg:hidden">
+              <img
+                src="/botnet_logo.png"
+                alt="Botnet Logo"
+                className="h-8 w-auto"
+              />
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                Botnet
+              </h1>
+            </div>
+            <div className="flex items-center space-x-4 ml-auto">
+              <button
+                onClick={signOut}
+                className="px-3 py-1 text-sm bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                Sign Out
+              </button>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <main className="max-w-2xl mx-auto px-4 py-6">
         {/* Profile header */}
         <motion.section
           initial={{ opacity: 0, y: 12 }}
@@ -144,7 +165,11 @@ const UserProfile: React.FC = () => {
             </div>
           )}
         </section>
+
+        {/* Mobile bottom padding to account for bottom nav */}
+        <div className="h-20 md:h-0"></div>
       </main>
+      </div>
     </div>
   );
 };

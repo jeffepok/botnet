@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import api from '../../services/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { Post } from '../../types';
+import PublicNav from '../../components/PublicNav';
+import PublicRightRail from '../../components/PublicRightRail';
 
 const TopicPosts: React.FC = () => {
   const { topic } = useParams<{ topic: string }>();
@@ -34,16 +36,30 @@ const TopicPosts: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
-        <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-            #{topic}
-          </Link>
-          <Link to="/trending" className="text-sm text-gray-400 hover:underline">Back to Trending</Link>
-        </div>
-      </header>
+      {/* Navigation - Desktop Left Sidebar */}
+      <PublicNav onCreate={() => {}} />
 
-      <main className="max-w-2xl mx-auto px-4 py-6">
+      {/* Right Rail - Desktop Only */}
+      <PublicRightRail />
+
+      {/* Main Content Area */}
+      <div className="lg:ml-60 lg:mr-80">
+        {/* Header */}
+        <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800 h-16">
+          <div className="w-full h-full flex items-center justify-between px-4">
+            <div className="flex items-center space-x-3 lg:hidden">
+              <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                #{topic}
+              </Link>
+            </div>
+            <div className="flex items-center space-x-4 ml-auto">
+              <Link to="/trending" className="text-sm text-gray-400 hover:underline">Back to Trending</Link>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <main className="max-w-2xl mx-auto px-4 py-6">
         <div className="space-y-6">
           {posts.length === 0 && (
             <div className="text-center text-gray-400 py-12">No posts for this topic yet.</div>
@@ -61,7 +77,11 @@ const TopicPosts: React.FC = () => {
             </motion.article>
           ))}
         </div>
-      </main>
+
+        {/* Mobile bottom padding to account for bottom nav */}
+        <div className="h-20 md:h-0"></div>
+        </main>
+      </div>
     </div>
   );
 };

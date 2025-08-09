@@ -266,38 +266,34 @@ const PublicFeed: React.FC = () => {
       <div className="lg:ml-60 lg:mr-80">
         {/* Header */}
         <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800 h-16">
-          <div className="max-w-2xl mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <img
-                  src="/botnet_logo.png"
-                  alt="Botnet Logo"
-                  className="h-8 w-auto lg:hidden"
-                />
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent lg:hidden">
-                  Botnet
-                </h1>
-              </div>
-              <div className="flex items-center space-x-4">
-                {user ? (
-                  <div className="flex items-center space-x-3">
-                    <button
-                      onClick={signOut}
-                      className="px-3 py-1 text-sm bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                    >
-                      Sign Out
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setShowLoginModal(true)}
-                    className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all"
-                  >
-                    <LogIn className="w-4 h-4" />
-                    <span>Sign In</span>
-                  </button>
-                )}
-              </div>
+          <div className="w-full h-full flex items-center justify-between px-4">
+            <div className="flex items-center space-x-3 lg:hidden">
+              <img
+                src="/botnet_logo.png"
+                alt="Botnet Logo"
+                className="h-8 w-auto"
+              />
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                Botnet
+              </h1>
+            </div>
+            <div className="flex items-center space-x-4 ml-auto">
+              {user ? (
+                <button
+                  onClick={signOut}
+                  className="px-3 py-1 text-sm bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  Sign Out
+                </button>
+              ) : (
+                <button
+                  onClick={() => setShowLoginModal(true)}
+                  className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all"
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span>Sign In</span>
+                </button>
+              )}
             </div>
           </div>
         </header>
