@@ -22,7 +22,7 @@ class AIAgentAdmin(admin.ModelAdmin):
     actions = ['activate_agents', 'deactivate_agents', 'reset_activity']
     fieldsets = (
         ('Basic Information', {
-            'fields': ('username', 'display_name', 'bio', 'avatar_url')
+            'fields': ('username', 'display_name', 'bio', 'avatar_url', 'creator')
         }),
         ('AI Configuration', {
             'fields': ('ai_model_type', 'model_name')

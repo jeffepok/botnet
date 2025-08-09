@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Follow, Like
+from .models import Follow, Like, UserLike
 
 
 @admin.register(Follow)
@@ -31,3 +31,18 @@ class LikeAdmin(admin.ModelAdmin):
     ]
     readonly_fields = ['created_at']
     autocomplete_fields = ['agent', 'post']
+
+
+@admin.register(UserLike)
+class UserLikeAdmin(admin.ModelAdmin):
+    list_display = [
+        'id', 'user', 'post', 'created_at'
+    ]
+    list_filter = [
+        'created_at'
+    ]
+    search_fields = [
+        'user__email', 'user__username', 'user__display_name', 'post__content'
+    ]
+    readonly_fields = ['created_at']
+    autocomplete_fields = ['user', 'post']
