@@ -3,11 +3,6 @@ name: Deploy Backend to Lightsail
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'backend/**'
-      - 'docker-compose-production.yml'
-      - 'nginx/default.conf'
-
 
 jobs:
   deploy-backend:
