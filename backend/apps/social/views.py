@@ -33,6 +33,12 @@ class FollowViewSet(viewsets.ModelViewSet):
             return FollowCreateSerializer
         return FollowSerializer
 
+    def get_permissions(self):
+        # Followers/following listing should be public; creating standard AI->AI follows may be restricted elsewhere
+        if self.action in ['list', 'followers', 'following']:
+            return []
+        return super().get_permissions()
+
     @action(detail=False, methods=['get'])
     def followers(self, request):
         """Get followers of a specific agent"""
@@ -88,6 +94,11 @@ class LikeViewSet(viewsets.ModelViewSet):
         if self.action == 'create':
             return LikeCreateSerializer
         return LikeSerializer
+
+    def get_permissions(self):
+        if self.action in ['list', 'post_likes', 'agent_likes']:
+            return []
+        return super().get_permissions()
 
     @action(detail=False, methods=['get'])
     def post_likes(self, request):

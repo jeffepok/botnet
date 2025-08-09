@@ -54,21 +54,21 @@ const CreateAgentModal: React.FC<CreateAgentModalProps> = ({ onClose, onSubmit, 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        className="bg-gray-900 border border-gray-800 text-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">Create New AI Agent</h2>
+        <div className="flex items-center justify-between p-6 border-b border-gray-800">
+          <h2 className="text-xl font-semibold">Create New AI Agent</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-2xl font-light"
+            className="text-gray-400 hover:text-gray-200 text-2xl font-light"
           >
             ×
           </button>
@@ -77,7 +77,7 @@ const CreateAgentModal: React.FC<CreateAgentModalProps> = ({ onClose, onSubmit, 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Username *
               </label>
               <input
@@ -89,46 +89,46 @@ const CreateAgentModal: React.FC<CreateAgentModalProps> = ({ onClose, onSubmit, 
                   }
                 })}
                 placeholder="agent_username"
-                className="input"
+                className="w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
               />
               {errors.username && (
-                <p className="mt-1 text-sm text-red-600">{errors.username.message}</p>
+                <p className="mt-1 text-sm text-pink-400">{errors.username.message}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Display Name *
               </label>
               <input
                 {...register('display_name', { required: 'Display name is required' })}
                 placeholder="Agent Display Name"
-                className="input"
+                className="w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
               />
               {errors.display_name && (
-                <p className="mt-1 text-sm text-red-600">{errors.display_name.message}</p>
+                <p className="mt-1 text-sm text-pink-400">{errors.display_name.message}</p>
               )}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Bio
             </label>
             <textarea
               {...register('bio')}
               placeholder="Tell us about this AI agent's personality and interests..."
-              className="input resize-none"
+              className="w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-none"
               rows={3}
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 AI Model Type
               </label>
-              <select {...register('ai_model_type')} className="input">
+              <select {...register('ai_model_type')} className="w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
                 <option value="local">Local Model</option>
                 <option value="openai">OpenAI GPT</option>
                 <option value="anthropic">Anthropic Claude</option>
@@ -137,20 +137,20 @@ const CreateAgentModal: React.FC<CreateAgentModalProps> = ({ onClose, onSubmit, 
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Model Name
               </label>
               <input
                 {...register('model_name')}
                 placeholder="gpt-4, claude-3, etc."
-                className="input"
+                className="w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Posting Frequency (posts per hour)
               </label>
               <div className="flex items-center space-x-4">
@@ -161,16 +161,16 @@ const CreateAgentModal: React.FC<CreateAgentModalProps> = ({ onClose, onSubmit, 
                   step="0.1"
                   defaultValue="1.0"
                   {...register('posting_frequency', { valueAsNumber: true })}
-                  className="flex-1"
+                  className="flex-1 accent-pink-500"
                 />
-                <span className="text-sm text-gray-600 min-w-[80px]">
+                <span className="text-sm text-gray-400 min-w-[80px]">
                   {watch('posting_frequency') || 1.0} posts/hour
                 </span>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Interaction Rate (0-1)
               </label>
               <div className="flex items-center space-x-4">
@@ -181,9 +181,9 @@ const CreateAgentModal: React.FC<CreateAgentModalProps> = ({ onClose, onSubmit, 
                   step="0.1"
                   defaultValue="0.5"
                   {...register('interaction_rate', { valueAsNumber: true })}
-                  className="flex-1"
+                  className="flex-1 accent-pink-500"
                 />
-                <span className="text-sm text-gray-600 min-w-[40px]">
+                <span className="text-sm text-gray-400 min-w-[40px]">
                   {watch('interaction_rate') || 0.5}
                 </span>
               </div>
@@ -191,7 +191,7 @@ const CreateAgentModal: React.FC<CreateAgentModalProps> = ({ onClose, onSubmit, 
           </div>
 
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Personality Traits</h3>
+            <h3 className="text-lg font-medium mb-4">Personality Traits</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {([
                 ['extroversion', personalityTraits.extroversion],
@@ -201,7 +201,7 @@ const CreateAgentModal: React.FC<CreateAgentModalProps> = ({ onClose, onSubmit, 
                 ['neuroticism', personalityTraits.neuroticism],
               ] as [keyof PersonalityTraits, number][]).map(([trait, value]) => (
                 <div key={trait}>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
                     {String(trait).charAt(0).toUpperCase() + String(trait).slice(1)} (0-1)
                   </label>
                   <div className="flex items-center space-x-4">
@@ -212,9 +212,9 @@ const CreateAgentModal: React.FC<CreateAgentModalProps> = ({ onClose, onSubmit, 
                       step="0.1"
                       value={value}
                       onChange={(e) => handleTraitNumeric(trait, parseFloat(e.target.value))}
-                      className="flex-1"
+                      className="flex-1 accent-pink-500"
                     />
-                    <span className="text-sm text-gray-600 min-w-[40px]">{value.toFixed(1)}</span>
+                    <span className="text-sm text-gray-400 min-w-[40px]">{value.toFixed(1)}</span>
                   </div>
                 </div>
               ))}
@@ -222,34 +222,34 @@ const CreateAgentModal: React.FC<CreateAgentModalProps> = ({ onClose, onSubmit, 
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Posting Style</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Posting Style</label>
                 <input
                   value={personalityTraits.posting_style}
                   onChange={(e) => setPersonalityTraits(prev => ({ ...prev, posting_style: e.target.value }))}
-                  className="input"
+                  className="w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Tone</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Tone</label>
                 <input
                   value={personalityTraits.tone}
                   onChange={(e) => setPersonalityTraits(prev => ({ ...prev, tone: e.target.value }))}
-                  className="input"
+                  className="w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 />
               </div>
             </div>
 
             <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Topics (comma-separated)</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Topics (comma-separated)</label>
               <input
                 value={personalityTraits.topics.join(', ')}
                 onChange={(e) => setPersonalityTraits(prev => ({ ...prev, topics: e.target.value.split(',').map(t => t.trim()).filter(Boolean) }))}
-                className="input"
+                className="w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
               />
             </div>
 
             <div className="mt-6">
-              <h4 className="text-md font-medium text-gray-900 mb-2">Content Mix (0-1)</h4>
+              <h4 className="text-md font-medium mb-2">Content Mix (0-1)</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {([
                   ['food_reviews', personalityTraits.content_mix.food_reviews],
@@ -258,7 +258,7 @@ const CreateAgentModal: React.FC<CreateAgentModalProps> = ({ onClose, onSubmit, 
                   ['food_culture', personalityTraits.content_mix.food_culture],
                 ] as [keyof PersonalityTraits['content_mix'], number][]).map(([key, value]) => (
                   <div key={key}>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">{key.replace('_', ' ')}</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">{key.replace('_', ' ')}</label>
                     <div className="flex items-center space-x-4">
                       <input
                         type="range"
@@ -267,9 +267,9 @@ const CreateAgentModal: React.FC<CreateAgentModalProps> = ({ onClose, onSubmit, 
                         step="0.1"
                         value={value}
                         onChange={(e) => handleContentMix(key, parseFloat(e.target.value))}
-                        className="flex-1"
+                        className="flex-1 accent-pink-500"
                       />
-                      <span className="text-sm text-gray-600 min-w-[40px]">{value.toFixed(1)}</span>
+                      <span className="text-sm text-gray-400 min-w-[40px]">{value.toFixed(1)}</span>
                     </div>
                   </div>
                 ))}
@@ -277,18 +277,18 @@ const CreateAgentModal: React.FC<CreateAgentModalProps> = ({ onClose, onSubmit, 
             </div>
           </div>
 
-          <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+          <div className="flex justify-end space-x-3 pt-6 border-t border-gray-800">
             <button
               type="button"
               onClick={onClose}
-              className="btn btn-outline"
+              className="px-4 py-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="btn btn-primary"
+              className="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 transition-all disabled:opacity-70"
             >
               {isLoading ? 'Creating...' : 'Create Agent'}
             </button>

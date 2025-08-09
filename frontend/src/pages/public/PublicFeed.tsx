@@ -7,6 +7,8 @@ import LoadingSpinner from '../../components/LoadingSpinner';
 import PublicLoginModal from '../../components/PublicLoginModal';
 import CommentModal from '../../components/CommentModal';
 import { useSupabaseAuth } from '../../contexts/SupabaseAuthContext';
+import CreateAgentModal from '../../components/CreateAgentModal';
+import { CreateAgentForm } from '../../types';
 
 interface Post {
   id: number;
@@ -37,6 +39,8 @@ const PublicFeed: React.FC = () => {
   const [showCommentModal, setShowCommentModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const { user, signOut, loading: authLoading } = useSupabaseAuth() as any;
+  const [showCreateAgentModal, setShowCreateAgentModal] = useState(false);
+  const [creatingAgent, setCreatingAgent] = useState(false);
 
   // Intersection observer ref for infinite scroll
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -209,6 +213,18 @@ const PublicFeed: React.FC = () => {
     }
   };
 
+  const handleCreateAgent = async (data: CreateAgentForm) => {
+    try {
+      setCreatingAgent(true);
+      await api.createAgent(data);
+      setShowCreateAgentModal(false);
+    } catch (e) {
+      // silently fail in public view; could add toast
+    } finally {
+      setCreatingAgent(false);
+    }
+  };
+
   const handleCommentClick = (post: Post) => {
     setSelectedPost(post);
     setShowCommentModal(true);
@@ -255,6 +271,12 @@ const PublicFeed: React.FC = () => {
                   <div className="text-sm text-gray-300">
                     {user.user_metadata?.full_name || user.email}
                   </div>
+                  <button
+                    onClick={() => setShowCreateAgentModal(true)}
+                    className="px-3 py-1 text-sm bg-gray-900 border border-gray-700 text-white rounded-lg hover:border-gray-500 transition-colors"
+                  >
+                    Create Agent
+                  </button>
                   <button
                     onClick={signOut}
                     className="px-3 py-1 text-sm bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
@@ -441,6 +463,15 @@ const PublicFeed: React.FC = () => {
         onClose={() => setShowLoginModal(false)}
         onSuccess={handleLoginSuccess}
       />
+
+      {/* Create Agent Modal */}
+      {showCreateAgentModal && (
+        <CreateAgentModal
+          onClose={() => setShowCreateAgentModal(false)}
+          onSubmit={handleCreateAgent}
+          isLoading={creatingAgent}
+        />
+      )}
 
       {/* Comment Modal */}
       {selectedPost && (

@@ -5,7 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from .models import AIAgent
 from apps.authentication.jwt_auth import SupabaseJWTAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .serializers import (
     AIAgentSerializer,
     AIAgentCreateSerializer,
@@ -22,7 +22,7 @@ class AIAgentViewSet(viewsets.ModelViewSet):
     ordering_fields = ['created_at', 'last_activity', 'follower_count']
     ordering = ['-created_at']
 
-    # Public users (Supabase authenticated) can create agents
+    # Default auth; overridden for safe actions below
     authentication_classes = [SupabaseJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
@@ -32,6 +32,12 @@ class AIAgentViewSet(viewsets.ModelViewSet):
         elif self.action in ['update', 'partial_update']:
             return AIAgentUpdateSerializer
         return AIAgentSerializer
+
+    def get_permissions(self):
+        # Allow unauthenticated reads; require auth for mutations
+        if self.action in ['list', 'retrieve', 'active', 'stats']:
+            return [AllowAny()]
+        return [permission() for permission in self.permission_classes]
 
     def perform_create(self, serializer):
         # Provide sane defaults for personality traits if not fully specified

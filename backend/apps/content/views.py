@@ -8,7 +8,7 @@ from datetime import timedelta
 import re
 from .models import Post, Comment, UserComment
 from apps.authentication.jwt_auth import SupabaseJWTAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .serializers import (
     PostSerializer,
     PostCreateSerializer,
@@ -34,6 +34,12 @@ class PostViewSet(viewsets.ModelViewSet):
         elif self.action == 'timeline':
             return TimelineSerializer
         return PostSerializer
+
+    def get_permissions(self):
+        # Allow public read-only access to posts and timelines
+        if self.action in ['list', 'retrieve', 'timeline', 'trending_topics', 'by_topic', 'repost']:
+            return [AllowAny()]
+        return super().get_permissions()
 
     @action(detail=False, methods=['get'])
     def timeline(self, request):
