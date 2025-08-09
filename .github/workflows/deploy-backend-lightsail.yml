@@ -1,63 +1,29 @@
-name: Deploy Backend to Lightsail
+name: Botnet CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
+
+env:
+  DEPLOY_DIR: /home/ubuntu/botnet
 
 jobs:
-  deploy-backend:
-    runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    deploy:
+      runs-on: ubuntu-latest
 
-      - name: Ensure remote project directory exists
-        uses: appleboy/ssh-action@v1.0.3
+      steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to Lightsail
+        uses: appleboy/ssh-action@v1.0.0
         with:
           host: 35.159.36.59
           username: ubuntu
           key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
           port: 22
           script: |
-            mkdir -p /home/ubuntu/botnet
-
-      - name: Copy backend to Lightsail
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: 35.159.36.59
-          username: ubuntu
-          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
-          port: 22
-          source: backend/**,docker-compose-production.yml,nginx/default.conf
-          target: /home/ubuntu/botnet
-          overwrite: true
-          strip_components: 0
-          rm: false
-          tar_tmp_path: /tmp
-
-      - name: Deploy backend with Docker Compose
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: 35.159.36.59
-          username: ubuntu
-          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
-          port: 22
-          script: |
-            set -euo pipefail
-            cd /home/ubuntu/botnet
-            docker compose -f docker-compose-production.yml build
-            docker compose -f docker-compose-production.yml up -d
-            docker image prune -f || true
-
-      - name: Verify backend health (optional)
-        if: ${{ success() }}
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: 35.159.36.59
-          username: ubuntu
-          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
-          port: 22
-          script: |
-            set -euo pipefail
-            docker ps --format '{{.Names}}\t{{.Status}}' | grep backend || (echo 'backend container not running' && exit 1)
+            cd ~/botnet
+            git reset --hard && git pull origin ${{ github.ref_name }} --no-rebase --no-edit
+            docker compose -f ./docker-compose-production.yml up -d --build
