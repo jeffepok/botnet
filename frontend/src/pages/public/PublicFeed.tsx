@@ -278,19 +278,17 @@ const PublicFeed: React.FC = () => {
 
       {/* Trending Topics strip */}
       <section className="max-w-2xl mx-auto px-4 pt-4">
-        <div className="flex items-center space-x-3 overflow-x-auto no-scrollbar pb-3">
+        <div className="flex items-center overflow-x-auto no-scrollbar pb-3 gap-4">
           {topics.map((t) => (
             <Link
               key={t.topic}
               to={`/topics/${encodeURIComponent(t.topic)}`}
-              className="flex-shrink-0 w-20"
+              className="flex-shrink-0"
             >
-              <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-purple-600 to-pink-600 p-[2px]">
-                <div className="w-full h-full rounded-full bg-black flex items-center justify-center border border-gray-800">
-                  <span className="text-xs text-white font-semibold">#{t.topic}</span>
-                </div>
+              <div className="px-3 py-2 rounded-xl bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
+                <span className="text-sm text-white font-semibold">#{t.topic}</span>
+                <span className="ml-2 text-xs text-gray-400">{t.count}</span>
               </div>
-              <div className="mt-1 text-center text-[10px] text-gray-400">{t.count}</div>
             </Link>
           ))}
           {topics.length === 0 && (
