@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
-import AgentCard from '../components/AgentCard';
-import CreateAgentModal from '../components/CreateAgentModal';
-import LoadingSpinner from '../components/LoadingSpinner';
-import api from '../services/api';
-import { AIAgent, CreateAgentForm } from '../types';
+import AgentCard from '../../components/AgentCard';
+import CreateAgentModal from '../../components/CreateAgentModal';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import api from '../../services/api';
+import { AIAgent, CreateAgentForm } from '../../types';
 
 const AgentManagement: React.FC = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);

@@ -14,10 +14,10 @@ import {
   Tooltip,
   ResponsiveContainer
 } from 'recharts';
-import PostCard from '../components/PostCard';
-import LoadingSpinner from '../components/LoadingSpinner';
-import api from '../services/api';
-import { Post, AgentBehavior } from '../types';
+import PostCard from '../../components/PostCard';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import api from '../../services/api';
+import { Post, AgentBehavior } from '../../types';
 
 const AgentProfile: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -38,7 +38,7 @@ const AgentProfile: React.FC = () => {
     enabled: !!id,
     select: (data) => ({
       ...data,
-      results: data.results?.filter((post: Post) => post.author.id === Number(id)) || []
+      results: (data as any).results?.filter((post: Post) => post.author.id === Number(id)) || []
     })
   });
 
@@ -97,9 +97,7 @@ const AgentProfile: React.FC = () => {
     }
   };
 
-
-
-  const posts = agentPosts?.results || [];
+  const posts = (agentPosts as any)?.results || [];
   const behavior = agentBehavior || [];
 
   return (
@@ -127,32 +125,32 @@ const AgentProfile: React.FC = () => {
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center space-x-3 mb-2">
-              <h1 className="text-3xl font-bold text-gray-900">{agent.display_name}</h1>
-              <span className={`badge ${getAIModelBadgeColor(agent.ai_model_type)}`}>
-                {agent.ai_model_type}
+              <h1 className="text-3xl font-bold text-gray-900">{(agent as any).display_name}</h1>
+              <span className={`badge ${getAIModelBadgeColor((agent as any).ai_model_type)}`}>
+                {(agent as any).ai_model_type}
               </span>
-              <span className={`badge ${agent.is_active ? 'badge-success' : 'badge-danger'}`}>
-                {agent.is_active ? 'Active' : 'Inactive'}
+              <span className={`badge ${(agent as any).is_active ? 'badge-success' : 'badge-danger'}`}>
+                {(agent as any).is_active ? 'Active' : 'Inactive'}
               </span>
             </div>
 
-            <p className="text-gray-600 text-lg mb-3">@{agent.username}</p>
+            <p className="text-gray-600 text-lg mb-3">@{(agent as any).username}</p>
 
-            {agent.bio && (
-              <p className="text-gray-700 mb-4 leading-relaxed">{agent.bio}</p>
+            {(agent as any).bio && (
+              <p className="text-gray-700 mb-4 leading-relaxed">{(agent as any).bio}</p>
             )}
 
             <div className="grid grid-cols-3 gap-6">
               <div className="text-center">
-                <div className="text-2xl font-bold text-primary-600">{agent.follower_count}</div>
+                <div className="text-2xl font-bold text-primary-600">{(agent as any).follower_count}</div>
                 <div className="text-sm text-gray-600">Followers</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-primary-600">{agent.following_count}</div>
+                <div className="text-2xl font-bold text-primary-600">{(agent as any).following_count}</div>
                 <div className="text-sm text-gray-600">Following</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-primary-600">{agent.post_count}</div>
+                <div className="text-2xl font-bold text-primary-600">{(agent as any).post_count}</div>
                 <div className="text-sm text-gray-600">Posts</div>
               </div>
             </div>
@@ -173,26 +171,26 @@ const AgentProfile: React.FC = () => {
           <div className="space-y-3">
             <div className="flex justify-between">
               <span className="text-gray-600">AI Model:</span>
-              <span className="font-medium">{agent.model_name}</span>
+              <span className="font-medium">{(agent as any).model_name}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Post Frequency:</span>
-              <span className="font-medium">{agent.posting_frequency}/hr</span>
+              <span className="font-medium">{(agent as any).posting_frequency}/hr</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Interaction Rate:</span>
-              <span className="font-medium">{(agent.interaction_rate * 100).toFixed(0)}%</span>
+              <span className="font-medium">{(((agent as any).interaction_rate || 0) * 100).toFixed(0)}%</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Created:</span>
               <span className="font-medium">
-                {formatDistanceToNow(new Date(agent.created_at), { addSuffix: true })}
+                {formatDistanceToNow(new Date((agent as any).created_at), { addSuffix: true })}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Last Activity:</span>
               <span className="font-medium">
-                {formatDistanceToNow(new Date(agent.last_activity), { addSuffix: true })}
+                {formatDistanceToNow(new Date((agent as any).last_activity), { addSuffix: true })}
               </span>
             </div>
           </div>
@@ -206,21 +204,77 @@ const AgentProfile: React.FC = () => {
           className="card"
         >
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Personality Traits</h3>
-          <div className="space-y-3">
-            {agent.personality_traits && Object.entries(agent.personality_traits).map(([trait, value]) => (
-              <div key={trait}>
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm text-gray-600 capitalize">{trait}:</span>
-                  <span className="text-sm font-medium">{value}</span>
+          <div className="space-y-4">
+            {(agent as any).personality_traits && Object.entries((agent as any).personality_traits).map(([trait, value]) => {
+              const title = String(trait).replace(/_/g, ' ');
+
+              const renderNumeric = (num: number) => {
+                const pct = num <= 1 ? Math.round(num * 100) : Math.round(num);
+                return (
+                  <>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm text-gray-600 capitalize">{title}:</span>
+                      <span className="text-sm font-medium">{pct}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="bg-primary-600 h-2 rounded-full" style={{ width: `${pct}%` }} />
+                    </div>
+                  </>
+                );
+              };
+
+              const renderArray = (arr: any[]) => (
+                <div>
+                  <div className="text-sm text-gray-600 capitalize mb-2">{title}:</div>
+                  <div className="flex flex-wrap gap-2">
+                    {arr.map((item, idx) => (
+                      <span key={`${title}-${idx}`} className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded">
+                        {String(item)}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-primary-600 h-2 rounded-full"
-                    style={{ width: `${value}%` }}
-                  ></div>
+              );
+
+              const renderObject = (obj: Record<string, any>) => (
+                <div>
+                  <div className="text-sm text-gray-600 capitalize mb-2">{title}:</div>
+                  <div className="space-y-2">
+                    {Object.entries(obj).map(([k, v]) => (
+                      <div key={`${title}-${k}`}>
+                        {typeof v === 'number' ? (
+                          renderNumeric(v as number)
+                        ) : (
+                          <div className="flex justify-between">
+                            <span className="text-sm text-gray-600 capitalize">{String(k).replace(/_/g, ' ')}:</span>
+                            <span className="text-sm font-medium">{String(v)}</span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+
+              let child: React.ReactNode = null;
+              if (typeof value === 'number') {
+                child = renderNumeric(value as number);
+              } else if (typeof value === 'string') {
+                child = (
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600 capitalize">{title}:</span>
+                    <span className="text-sm font-medium">{value}</span>
+                  </div>
+                );
+              } else if (Array.isArray(value)) {
+                child = renderArray(value as any[]);
+              } else if (value && typeof value === 'object') {
+                child = renderObject(value as Record<string, any>);
+              }
+              return (
+                <div key={trait}>{child}</div>
+              );
+            })}
           </div>
         </motion.div>
 
@@ -239,15 +293,15 @@ const AgentProfile: React.FC = () => {
                 <div className="text-sm text-gray-500">Loading...</div>
               ) : (
                 <div className="space-y-2">
-                  {followers?.results?.slice(0, 3).map((follow: any) => (
+                  {(followers as any)?.results?.slice(0, 3).map((follow: any) => (
                     <div key={follow.id} className="flex items-center space-x-2">
                       <div className="w-6 h-6 bg-gray-300 rounded-full"></div>
                       <span className="text-sm text-gray-700">@{follow.follower.username}</span>
                     </div>
                   ))}
-                  {followers?.results && followers.results.length > 3 && (
+                  {(followers as any)?.results && (followers as any).results.length > 3 && (
                     <div className="text-sm text-gray-500">
-                      +{followers.results.length - 3} more
+                      +{(followers as any).results.length - 3} more
                     </div>
                   )}
                 </div>
@@ -260,15 +314,15 @@ const AgentProfile: React.FC = () => {
                 <div className="text-sm text-gray-500">Loading...</div>
               ) : (
                 <div className="space-y-2">
-                  {following?.results?.slice(0, 3).map((follow: any) => (
+                  {(following as any)?.results?.slice(0, 3).map((follow: any) => (
                     <div key={follow.id} className="flex items-center space-x-2">
                       <div className="w-6 h-6 bg-gray-300 rounded-full"></div>
                       <span className="text-sm text-gray-700">@{follow.following.username}</span>
                     </div>
                   ))}
-                  {following?.results && following.results.length > 3 && (
+                  {(following as any)?.results && (following as any).results.length > 3 && (
                     <div className="text-sm text-gray-500">
-                      +{following.results.length - 3} more
+                      +{(following as any).results.length - 3} more
                     </div>
                   )}
                 </div>
@@ -320,7 +374,7 @@ const AgentProfile: React.FC = () => {
                     <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
                       <span>❤️ {post.like_count}</span>
                       <span>💬 {post.comment_count}</span>
-                      <span>🔄 {post.repost_count}</span>
+                      <span>🔄 {(post as any).repost_count}</span>
                     </div>
                   </div>
                 ))}
@@ -438,12 +492,12 @@ const AgentProfile: React.FC = () => {
           >
             {/* Followers */}
             <div className="card">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Followers ({agent.follower_count})</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Followers ({(agent as any).follower_count})</h3>
               {followersLoading ? (
                 <LoadingSpinner />
-              ) : followers?.results && followers.results.length > 0 ? (
+              ) : (followers as any)?.results && (followers as any).results.length > 0 ? (
                 <div className="space-y-3">
-                  {followers.results.map((follow: any) => (
+                  {(followers as any).results.map((follow: any) => (
                     <div key={follow.id} className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg">
                       <div className="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-semibold">
                         {getInitials(follow.follower.display_name)}
@@ -462,12 +516,12 @@ const AgentProfile: React.FC = () => {
 
             {/* Following */}
             <div className="card">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Following ({agent.following_count})</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Following ({(agent as any).following_count})</h3>
               {followingLoading ? (
                 <LoadingSpinner />
-              ) : following?.results && following.results.length > 0 ? (
+              ) : (following as any)?.results && (following as any).results.length > 0 ? (
                 <div className="space-y-3">
-                  {following.results.map((follow: any) => (
+                  {(following as any).results.map((follow: any) => (
                     <div key={follow.id} className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg">
                       <div className="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-semibold">
                         {getInitials(follow.following.display_name)}

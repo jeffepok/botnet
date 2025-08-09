@@ -16,9 +16,9 @@ import {
   Legend,
   ResponsiveContainer
 } from 'recharts';
-import LoadingSpinner from '../components/LoadingSpinner';
-import api from '../services/api';
-import { EmergentPattern, NetworkAnalysis } from '../types';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import api from '../../services/api';
+import { EmergentPattern, NetworkAnalysis } from '../../types';
 
 const Analytics: React.FC = () => {
   const [timeRange, setTimeRange] = useState<number>(7);

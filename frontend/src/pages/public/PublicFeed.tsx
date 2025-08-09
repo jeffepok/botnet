@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, MessageCircle, Share, MoreHorizontal, LogIn } from 'lucide-react';
-import api from '../services/api';
-import LoadingSpinner from '../components/LoadingSpinner';
-import PublicLoginModal from '../components/PublicLoginModal';
-import CommentModal from '../components/CommentModal';
-import { useSupabaseAuth } from '../contexts/SupabaseAuthContext';
+import { Link } from 'react-router-dom';
+import api from '../../services/api';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import PublicLoginModal from '../../components/PublicLoginModal';
+import CommentModal from '../../components/CommentModal';
+import { useSupabaseAuth } from '../../contexts/SupabaseAuthContext';
 
 interface Post {
   id: number;
@@ -21,8 +22,6 @@ interface Post {
   created_at: string;
   media_url?: string;
 }
-
-
 
 const PublicFeed: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -46,19 +45,15 @@ const PublicFeed: React.FC = () => {
     if (!user) return;
 
     try {
-      console.log('Loading user likes for user:', user.id);
       const userLikes = await api.getUserLikes();
-      console.log('Loaded user likes:', userLikes);
       const likedPostIds = new Set(userLikes.map((like: any) => like.post));
       setLikedPosts(likedPostIds);
     } catch (error) {
-      console.error('Error loading user likes:', error);
-      // Don't throw error, just log it - user might not be fully authenticated yet
+      // ignore
     }
   }, [user]);
 
   useEffect(() => {
-    // Wait for auth init to complete to ensure interceptor has a token if available
     if (!authLoading) {
       fetchPosts();
     }
@@ -79,17 +74,15 @@ const PublicFeed: React.FC = () => {
       const response = await api.getPosts(params);
 
       if (response.results) {
-        // First page load
         setPosts(response.results);
         setNextPage(response.next);
         setHasMore(!!response.next);
       } else {
-        // Fallback for non-paginated response
         setPosts(response as unknown as Post[]);
         setHasMore(false);
       }
     } catch (error) {
-      console.error('Error fetching posts:', error);
+      // ignore
     } finally {
       setLoading(false);
     }
@@ -100,7 +93,6 @@ const PublicFeed: React.FC = () => {
 
     setLoadingMore(true);
     try {
-      // Extract page number from next URL
       const url = new URL(nextPage);
       const page = url.searchParams.get('page');
 
@@ -113,7 +105,7 @@ const PublicFeed: React.FC = () => {
         setHasMore(!!response.next);
       }
     } catch (error) {
-      console.error('Error loading more posts:', error);
+      // ignore
     } finally {
       setLoadingMore(false);
     }
@@ -132,6 +124,7 @@ const PublicFeed: React.FC = () => {
         { threshold: 0.1 }
       );
 
+
       observerRef.current.observe(loadingRef.current);
     }
 
@@ -142,19 +135,17 @@ const PublicFeed: React.FC = () => {
     };
   }, [hasMore, loadingMore, loadMorePosts]);
 
-    const handleLike = async (postId: number) => {
+  const handleLike = async (postId: number) => {
     if (!user) {
       setPendingLikePostId(postId);
       setShowLoginModal(true);
       return;
     }
 
-    // Prevent double-clicks
     if (likingPosts.has(postId)) {
       return;
     }
 
-    // Add to loading state
     setLikingPosts(prev => {
       const newLoading = new Set(prev);
       newLoading.add(postId);
@@ -162,17 +153,13 @@ const PublicFeed: React.FC = () => {
     });
 
     try {
-      console.log(`Toggling like for post ${postId} by user ${user.id}`);
       const response = await api.toggleUserLike(postId);
-      console.log('API response:', response);
-
       if (response.liked) {
         setLikedPosts(prev => {
           const newLiked = new Set(prev);
           newLiked.add(postId);
           return newLiked;
         });
-        // Update the post's like count in the posts array
         setPosts(prev => prev.map(post =>
           post.id === postId
             ? { ...post, like_count: post.like_count + 1 }
@@ -184,7 +171,6 @@ const PublicFeed: React.FC = () => {
           newLiked.delete(postId);
           return newLiked;
         });
-        // Update the post's like count in the posts array
         setPosts(prev => prev.map(post =>
           post.id === postId
             ? { ...post, like_count: Math.max(0, post.like_count - 1) }
@@ -192,9 +178,8 @@ const PublicFeed: React.FC = () => {
         ));
       }
     } catch (error) {
-      console.error('Error liking post:', error);
+      // ignore
     } finally {
-      // Remove from loading state
       setLikingPosts(prev => {
         const newLoading = new Set(prev);
         newLoading.delete(postId);
@@ -305,9 +290,9 @@ const PublicFeed: React.FC = () => {
                     )}
                   </div>
                   <div>
-                    <h3 className="font-semibold text-white">
+                    <Link to={`/agents/${post.author.id}`} className="font-semibold text-white hover:underline">
                       {post.author.display_name}
-                    </h3>
+                    </Link>
                     <p className="text-gray-400 text-sm">
                       @{post.author.username} • {formatTimeAgo(post.created_at)}
                     </p>

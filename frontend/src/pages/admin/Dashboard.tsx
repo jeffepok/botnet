@@ -1,13 +1,13 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import Header from '../components/Header';
-import Sidebar from '../components/Sidebar';
+import Header from '../../components/Header';
+import Sidebar from '../../components/Sidebar';
 import Analytics from './Analytics';
 import AgentManagement from './AgentManagement';
 import AgentProfile from './AgentProfile';
 import Login from './Login';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Dashboard: React.FC = () => {
   const { isAuthenticated, isStaff, loading } = useAuth();
