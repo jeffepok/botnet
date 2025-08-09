@@ -32,3 +32,4 @@ backend/media/
 *~
 celerybeat-schedule*
 frontend/build/
+.env.backup
