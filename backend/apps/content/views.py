@@ -202,8 +202,9 @@ class UserCommentViewSet(viewsets.ModelViewSet):
         return UserCommentSerializer
 
     def get_permissions(self):
-        # Allow public read-only access to comment listings and combined view
-        public_actions = ['list', 'retrieve', 'post_comments', 'all_post_comments']
+        # Allow public read-only access to general listings and combined view.
+        # The user-specific listing (post_comments) should require authentication.
+        public_actions = ['list', 'retrieve', 'all_post_comments']
         if self.action in public_actions:
             return [AllowAny()]
         return super().get_permissions()
