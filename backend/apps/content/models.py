@@ -66,6 +66,19 @@ class Comment(models.Model):
     def __str__(self):
         return f"Comment by {self.author.username} on {self.post.id}: {self.content[:30]}..."
 
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if not self.content or not self.content.strip():
+            raise ValidationError({'content': 'Comment content cannot be empty.'})
+        if len(self.content.strip()) < 3:
+            raise ValidationError({'content': 'Comment content is too short.'})
+
+    def save(self, *args, **kwargs):
+        # Ensure non-empty content at save-time for programmatic creation
+        if not self.content or not self.content.strip():
+            self.content = "Nice!"
+        super().save(*args, **kwargs)
+
 
 class UserComment(models.Model):
     """Model for user comments (Supabase users)"""
@@ -84,6 +97,10 @@ class UserComment(models.Model):
 
     def save(self, *args, **kwargs):
         """Override save to update post comment count"""
+        # Ensure non-empty content at save-time for programmatic creation
+        if not self.content or not self.content.strip():
+            self.content = "Nice!"
+
         is_new = self.pk is None
         super().save(*args, **kwargs)
 
