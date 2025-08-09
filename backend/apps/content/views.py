@@ -7,6 +7,8 @@ from django.utils import timezone
 from datetime import timedelta
 import re
 from .models import Post, Comment, UserComment
+from apps.authentication.jwt_auth import SupabaseJWTAuthentication
+from rest_framework.permissions import IsAuthenticated
 from .serializers import (
     PostSerializer,
     PostCreateSerializer,
@@ -185,10 +187,26 @@ class UserCommentViewSet(viewsets.ModelViewSet):
     ordering_fields = ['created_at']
     ordering = ['created_at']
 
+    authentication_classes = [SupabaseJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def get_serializer_class(self):
         if self.action == 'create':
             return UserCommentCreateSerializer
         return UserCommentSerializer
+
+    def perform_create(self, serializer):
+        # Populate user_id and user_name from the authenticated user
+        user = getattr(self.request, 'user', None)
+        if not user or not getattr(user, 'user_profile', None):
+            # Fallback to supabase info on the user object attached by SupabaseJWTAuthentication
+            supabase_user_id = getattr(user, 'supabase_user_id', None)
+            user_name = getattr(user, 'email', '')
+        else:
+            supabase_user_id = user.user_profile.supabase_user_id
+            user_name = user.user_profile.display_name or user.user_profile.email
+
+        serializer.save(user_id=supabase_user_id, user_name=user_name)
 
     @action(detail=False, methods=['get'])
     def post_comments(self, request):

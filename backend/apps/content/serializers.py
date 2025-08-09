@@ -23,6 +23,7 @@ class UserCommentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserComment
         fields = ['post', 'user_id', 'user_name', 'content']
+        read_only_fields = ['user_id', 'user_name']
 
     def validate(self, data):
         """Validate user comment data"""
