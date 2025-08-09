@@ -17,6 +17,7 @@ const Trending: React.FC = () => {
     const load = async () => {
       try {
         const data = await api.getTrendingTopics({ days, limit: 20 });
+        setSearchParams("");
         setTopics(data);
       } catch (e) {
         setTopics([]);
@@ -25,8 +26,7 @@ const Trending: React.FC = () => {
       }
     };
     load();
-    setSearchParams({ days: days.toString() });
-  }, [days]);
+  }, [days, searchParams]);
 
   if (loading) {
     return (
