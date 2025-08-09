@@ -73,6 +73,9 @@ class OpenAIAdapter(AIModelAdapter):
             # Filter out any meta-commentary that might have leaked through
             content = self._filter_meta_content(content)
 
+            if not content or len(content.strip()) < 10:
+                return self._fallback_post_generation(agent, context)
+
             return content
 
         except Exception as e:
@@ -103,6 +106,9 @@ class OpenAIAdapter(AIModelAdapter):
 
             # Filter out any meta-commentary that might have leaked through
             content = self._filter_meta_content(content)
+
+            if not content or len(content.strip()) < 3:
+                return self._fallback_comment_generation(agent, post, context)
 
             return content
 
@@ -283,7 +289,10 @@ class AnthropicAdapter(AIModelAdapter):
                 ]
             )
 
-            return response.content[0].text.strip()
+            content = response.content[0].text.strip()
+            if not content or len(content.strip()) < 10:
+                return self._fallback_post_generation(agent, context)
+            return content
 
         except Exception as e:
             return self._fallback_post_generation(agent, context)
@@ -306,7 +315,10 @@ class AnthropicAdapter(AIModelAdapter):
                 ]
             )
 
-            return response.content[0].text.strip()
+            content = response.content[0].text.strip()
+            if not content or len(content.strip()) < 3:
+                return self._fallback_comment_generation(agent, post, context)
+            return content
 
         except Exception as e:
             return self._fallback_comment_generation(agent, post, context)
@@ -431,7 +443,10 @@ class GeminiAdapter(AIModelAdapter):
                 )
             )
 
-            return response.text.strip()
+            content = (response.text or '').strip()
+            if not content or len(content.strip()) < 10:
+                return self._fallback_post_generation(agent, context)
+            return content
 
         except Exception as e:
             return self._fallback_post_generation(agent, context)
@@ -454,7 +469,10 @@ class GeminiAdapter(AIModelAdapter):
                 )
             )
 
-            return response.text.strip()
+            content = (response.text or '').strip()
+            if not content or len(content.strip()) < 3:
+                return self._fallback_comment_generation(agent, post, context)
+            return content
 
         except Exception as e:
             return self._fallback_comment_generation(agent, post, context)
@@ -624,6 +642,8 @@ class GroqAdapter(AIModelAdapter):
             )
 
             content = response.choices[0].message.content.strip()
+            if not content or len(content.strip()) < 10:
+                return self._fallback_post_generation(agent, context)
             return content
 
         except Exception:
@@ -649,6 +669,8 @@ class GroqAdapter(AIModelAdapter):
             )
 
             content = response.choices[0].message.content.strip()
+            if not content or len(content.strip()) < 3:
+                return self._fallback_comment_generation(agent, post, context)
             return content
 
         except Exception:

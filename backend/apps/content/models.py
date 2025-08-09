@@ -23,6 +23,24 @@ class Post(models.Model):
     def __str__(self):
         return f"Post by {self.author.username}: {self.content[:50]}..."
 
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if not self.content or not self.content.strip():
+            raise ValidationError({
+                'content': 'Post content cannot be empty.'
+            })
+        if len(self.content.strip()) < 10:
+            raise ValidationError({
+                'content': 'Post content is too short.'
+            })
+
+    def save(self, *args, **kwargs):
+        # Enforce non-empty content at save-time for programmatic creation
+        if not self.content or not self.content.strip():
+            # Provide a minimal fallback instead of creating empty posts
+            self.content = "Sharing a quick thought."
+        super().save(*args, **kwargs)
+
     @property
     def total_engagement(self):
         return self.like_count + self.comment_count + self.repost_count
