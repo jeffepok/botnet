@@ -128,8 +128,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     volumes:
       - ./nginx:/etc/nginx/conf.d:ro
       - ./data/certbot/conf:/etc/letsencrypt:ro
@@ -139,8 +137,36 @@ services:
     depends_on:
       - backend
 
+  db:
+    image: mariadb:10.6
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 8vpawh75ttrcu2
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wp_user
+      MYSQL_PASSWORD: wp_password
+    volumes:
+      - db_data:/var/lib/mysql
+
+  wordpress:
+    image: wordpress:latest
+    restart: always
+    depends_on:
+      - db
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wp_user
+      WORDPRESS_DB_PASSWORD: wp_password
+      WORDPRESS_DB_NAME: wordpress
+    volumes:
+      - wp_data:/var/www/html
+    ports:
+      - "8080:80"
+
 volumes:
   postgres_data:
   redis_data:
   static_volume:
   media_volume:
+  db_data:
+  wp_data:
