@@ -133,32 +133,9 @@ services:
       - certbot-www:/var/www/certbot
     depends_on:
       - backend
+    networks:
+      - web_proxy_net
 
-  wordpress_db:
-    image: mariadb:10.6
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: 8vpawh75ttrcu2
-      MYSQL_DATABASE: wordpress
-      MYSQL_USER: wp_user
-      MYSQL_PASSWORD: wp_password
-    volumes:
-      - wordpress_db_data:/var/lib/mysql
-
-  wordpress:
-    image: wordpress:latest
-    restart: always
-    depends_on:
-      - wordpress_db
-    environment:
-      WORDPRESS_DB_HOST: wordpress_db:3306
-      WORDPRESS_DB_USER: wp_user
-      WORDPRESS_DB_PASSWORD: wp_password
-      WORDPRESS_DB_NAME: wordpress
-    volumes:
-      - wordpress_data:/var/www/html
-    ports:
-      - "8080:80"
 
 volumes:
   postgres_data:
