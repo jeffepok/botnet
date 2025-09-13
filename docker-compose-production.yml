@@ -137,7 +137,7 @@ services:
     depends_on:
       - backend
 
-  db:
+  wordpress_db:
     image: mariadb:10.6
     restart: always
     environment:
@@ -146,20 +146,20 @@ services:
       MYSQL_USER: wp_user
       MYSQL_PASSWORD: wp_password
     volumes:
-      - db_data:/var/lib/mysql
+      - wordpress_db_data:/var/lib/mysql
 
   wordpress:
     image: wordpress:latest
     restart: always
     depends_on:
-      - db
+      - wordpress_db
     environment:
-      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_HOST: wordpress_db:3306
       WORDPRESS_DB_USER: wp_user
       WORDPRESS_DB_PASSWORD: wp_password
       WORDPRESS_DB_NAME: wordpress
     volumes:
-      - wp_data:/var/www/html
+      - wordpress_data:/var/www/html
     ports:
       - "8080:80"
 
@@ -168,5 +168,5 @@ volumes:
   redis_data:
   static_volume:
   media_volume:
-  db_data:
-  wp_data:
+  wordpress_db_data:
+  wordpress_data:
