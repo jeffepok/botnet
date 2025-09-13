@@ -114,14 +114,11 @@ services:
 
   certbot:
     image: certbot/certbot
-    user: root
+    container_name: certbot
     volumes:
-      - ./data/certbot/conf:/etc/letsencrypt
-      - ./data/certbot/www:/var/www/certbot
-    command: certonly --webroot --webroot-path=/var/www/letsencrypt --email jeffepok@gmail.com -d korbcloud.com -d www.korbcloud.com
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-    depends_on:
-      - nginx
+      - certbot-etc:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    entrypoint: sh -c "trap exit TERM; while :; do sleep 6h & wait $${!}; certbot renew --webroot -w /var/www/certbot; done"
 
   nginx:
     image: nginx:alpine
@@ -130,10 +127,10 @@ services:
       - "443:443"
     volumes:
       - ./nginx:/etc/nginx/conf.d:ro
-      - ./data/certbot/conf:/etc/letsencrypt:ro
-      - ./data/certbot/www:/var/www/certbot:ro
       - static_volume:/usr/share/nginx/html/static
       - media_volume:/usr/share/nginx/html/media
+      - certbot-etc:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
     depends_on:
       - backend
 
@@ -168,5 +165,9 @@ volumes:
   redis_data:
   static_volume:
   media_volume:
-  wordpress_db_data:
-  wordpress_data:
+  certbot-etc:
+  certbot-www:
+
+networks:
+  web_proxy_net:
+    external: true
