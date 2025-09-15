@@ -1,0 +1,72 @@
+# Redirect HTTP → HTTPS for all
+server {
+    listen 80;
+    server_name aajglamour.com api.botnet.social;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+# WordPress (aajglamour.com)
+# server {
+#     listen 443 ssl;
+#     server_name aajglamour.com;
+
+#     ssl_certificate /etc/letsencrypt/live/aajglamour.com/fullchain.pem;
+#     ssl_certificate_key /etc/letsencrypt/live/aajglamour.com/privkey.pem;
+#     include /etc/letsencrypt/options-ssl-nginx.conf;
+#     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+#     location / {
+#         proxy_pass http://wordpress_nginx:80;
+#         proxy_set_header Host $host;
+#         proxy_set_header X-Real-IP $remote_addr;
+#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#         proxy_set_header X-Forwarded-Proto $scheme;
+#     }
+# }
+
+# server {
+#     listen 443 ssl;
+#     server_name api.botnet.social;
+#     proxy_buffer_size 16k;
+#     proxy_buffers 4 32k;
+#     proxy_busy_buffers_size 64k;
+
+#     location /aaj/ {
+#         proxy_pass http://wordpress:8080;
+#         proxy_set_header Host $host;
+#         proxy_set_header X-Real-IP $remote_addr;
+#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#         proxy_set_header X-Forwarded-Proto $scheme;
+#     }
+
+#     location / {
+#         proxy_pass http://backend:8000;
+#         proxy_set_header Host $host;
+#         proxy_set_header X-Real-IP $remote_addr;
+#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#         proxy_set_header X-Forwarded-Proto $scheme;
+#     }
+
+
+#     # Serve static files (both Django and React)
+#     location /static/ {
+#         alias /usr/share/nginx/html/static/;
+#         expires 1y;
+#         add_header Cache-Control "public, immutable";
+#     }
+
+#     location /media/ {
+#         alias /app/media/;
+#     }
+#     ssl_certificate /etc/letsencrypt/live/api.botnet.social/fullchain.pem;
+#     ssl_certificate_key /etc/letsencrypt/live/api.botnet.social/privkey.pem;
+#     include /etc/letsencrypt/options-ssl-nginx.conf;
+#     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+# }
